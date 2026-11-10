@@ -433,7 +433,14 @@ const P = [
  ["Was head of social content at GoPro|~gopro|~go pro","Directs music videos|~music video","Photographer|~photo","Makes commercials for big brands|~brand|~commercial|~ads"],
  ["Worked with Tiësto|~tiesto","Worked with The Chainsmokers|~chainsmokers","Porsche campaign for the 911 and Taycan|~porsche|~911|~taycan","DJI Osmo Action 2 commercial|~dji|~osmo","Also produces music|~produc|~music|~dj","Graphic designer|~graphic|~design","Made a short film|~short film","Has a YouTube channel|~channel"],
  ["Went to film school|~film school","Guest on Entrepreneur's 'Leaders Create Leaders'|~leaders create leaders|~gerard adams|~entrepreneur","Guest on PolarPro's 'Golden Hour' podcast|~polarpro|~golden hour|~podcast","Collabed with Maxx Chewning|~maxx|~chewning"],
- ["His favorite IKONICK art piece is 'Keep Going'|~ikonick|~keep going","The Porsche project was in 2021|~2021"]]}
+ ["His favorite IKONICK art piece is 'Keep Going'|~ikonick|~keep going","The Porsche project was in 2021|~2021"]]},
+/* Bathroom etiquette */
+{topic:"Bathroom Etiquette", q:"Name something that's bad bathroom etiquette", t:[
+ ["Not washing your hands|~wash|~hands","Not flushing|~flush"],
+ ["Leaving the seat up|~seat up|~seat","Peeing on the seat|~pee|~piss|~sprinkle|~dribble","Using up the toilet paper and not replacing it|~toilet paper|~tp|~roll|~replace","Taking forever|~forever|~too long|~hog|~long time","On your phone in there|~phone|~scrolling|~talking"],
+ ["Clogging it and walking away|~clog|~plunge","Not spraying after|~spray|~smell|~stink|~febreze|~air freshener|~candle|~match","Leaving the door open|~door|~lock|~knock","Talking to someone in the next stall|~stall|~conversation|~chat|~small talk","Taking the urinal right next to someone|~urinal","Wet floor or counter|~wet|~water everywhere|~splash|~puddle","Leaving hair in the sink or shower|~hair|~shav"],
+ ["Courtesy flush fails|~courtesy","Toothpaste left in the sink|~toothpaste|~spit","Leaving towels on the floor|~towel","Peeking through the stall gap|~peek|~gap|~look","Eating in the bathroom|~eat|~food|~snack","Not putting the lid down before flushing|~lid"],
+ ["When you leave crumbs behind in the toilo after going poop|~crumb|~toilo|~skid|~streak|~leave behind|~left behind|~residue|~poop stain|~marks in the bowl|~floater"]]}
 ];
 
 

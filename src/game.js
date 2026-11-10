@@ -220,16 +220,28 @@ function start(){
   if(n>=ROUNDS){ S={round:ROUNDS,...DAY.done[ROUNDS-1]}; showSummary(false); return; }
   const c=DAY.cur;
   S=(c&&c.round===n+1&&c.results.length<PER)?{round:n+1,qs:PLAN[n],i:c.results.length,results:c.results,score:c.score}:{round:n+1,qs:PLAN[n],i:0,results:[],score:0};
+  launch();
+}
+/* A bonus round that doesn't count: fresh questions, no leaderboard, no streak. */
+function startFun(){
+  const used=new Set(PLAN.flat()), pool=P.map((_,i)=>i).sort(()=>Math.random()-0.5).sort((a,b)=>used.has(a)-used.has(b));
+  const qs=[], groups=new Set();
+  for(const i of pool){ const g=groupOf(P[i].topic); if(qs.length<PER&&!groups.has(g)){ qs.push(i); groups.add(g); } }
+  S={fun:true,round:0,qs:qs.sort(()=>Math.random()-0.5),i:0,results:[],score:0};
+  launch();
+}
+const roundName=()=>S.fun?"Fun round":"Round "+S.round;
+function launch(){
   show("game"); setAltitude(S.score,true); renderHoard(false);
   prep(); S.locked=true;
-  const sp=$("splash"), tx=$("splashText"); sp.classList.remove("hidden"); tx.textContent="Round "+S.round;
+  const sp=$("splash"), tx=$("splashText"); sp.classList.remove("hidden"); tx.textContent=roundName();
   const again=()=>{ tx.style.animation="none"; void tx.offsetWidth; tx.style.animation=""; };
   setTimeout(()=>{ tx.textContent="Go!"; again(); SFX.play("go"); },RM?300:750);
   setTimeout(()=>{ sp.classList.add("hidden"); S.locked=false; beginTimer(); },RM?600:1200);
 }
 function prep(){
   const p=P[S.qs[S.i]];
-  $("roundChip").textContent="Round "+S.round;
+  $("roundChip").textContent=roundName();
   renderPips();
   const qn=$("question"); qn.textContent=p.q; qn.classList.remove("qfade"); void qn.offsetWidth; qn.classList.add("qfade");
   S.tries=[]; S.skipped=false; $("tryMsg").textContent="";
@@ -268,7 +280,7 @@ function finish(p,raw,hit){
   const misses=S.tries.length;
   S.results.push({q:p.q,skipped:!!S.skipped&&!hit,honor:!!(hit&&hit.honor),input:raw||S.tries[misses-1]||"",tier:hit?hit.tier:-1,display:hit?hit.display:"",misses});
   if(hit) S.score+=TIERS[hit.tier].pts;
-  DAY.cur={round:S.round,results:S.results,score:S.score}; store.set(DAYKEY,DAY);
+  if(!S.fun){ DAY.cur={round:S.round,results:S.results,score:S.score}; store.set(DAYKEY,DAY); }
   setAltitude(S.score); renderHoard(!!hit); renderPips();
   const missTxt=misses?` (after ${misses} miss${misses>1?"es":""})`:"";
   if(hit){
@@ -288,12 +300,13 @@ function finish(p,raw,hit){
   const filled=[4,3,2,1,0].filter(k=>p.t[k]&&p.t[k].length), nm=k=>p.t[k].map(a=>a.split("|")[0]);
   const top=nm(filled[0]).slice(0,3), nxt=filled[1]!==undefined?nm(filled[1]).slice(0,2):[];
   $("rareList").innerHTML=`Shiniest answers: <b>${top.map(esc).join("</b>, <b>")}</b>`+(nxt.length?` · Also: ${nxt.map(esc).join(", ")}`:"");
-  $("next").textContent=S.i===PER-1?`Finish Round ${S.round}`:"Next question";
+  $("next").textContent=S.i===PER-1?(S.fun?"Finish":`Finish Round ${S.round}`):"Next question";
   $("play").classList.add("hidden"); $("result").classList.remove("hidden");
   try{ $("answer").blur(); }catch(e){}
 }
 function next(){
   S.i++;
+  if(S.i>=PER&&S.fun){ showSummary(true); return; }
   if(S.i>=PER){
     DAY.done.push({score:S.score,results:S.results}); DAY.cur=null; store.set(DAYKEY,DAY);
     bumpStreak();
@@ -308,8 +321,8 @@ let cdTimer=null;
 function showSummary(fresh){
   show("summary"); clearInterval(timerId);
   setAltitude(S.score,!fresh); renderHoard(false); renderStreak();
-  const n=DAY.done.length, allDone=n>=ROUNDS;
-  $("sumLabel").textContent=`Round ${S.round} of ${ROUNDS} complete`;
+  const n=DAY.done.length, fun=!!S.fun, allDone=n>=ROUNDS&&!fun;
+  $("sumLabel").textContent=fun?"Fun round · doesn't count":`Round ${S.round} of ${ROUNDS} complete`;
   const st=starsFor(S.score), spans=$("sumStars").children;
   for(let k=0;k<3;k++){ spans[k].className=""; spans[k].style.animationDelay=""; }
   void $("sumStars").offsetWidth;
@@ -320,8 +333,11 @@ function showSummary(fresh){
   $("sumList").innerHTML=S.results.map((r,i)=>{ const t=r.tier>=0?TIERS[r.tier]:null;
     const ans=r.display?esc(r.display):(r.input?`<s>${esc(r.input)}</s>`:(r.skipped?"Skipped":"No answer"));
     return `<li style="animation-delay:${0.1+i*0.05}s"><span class="ic">${iconFor(r)}</span><span class="tx"><span class="qq">${esc(r.q)}</span><span class="aa" style="${t?"":"color:var(--muted);font-weight:500"}">${ans}</span></span><b style="color:${t?t.color:"var(--muted)"}">${t?"+"+t.pts:"0"}</b></li>`; }).join("");
-  $("again").classList.toggle("hidden",allDone); $("again").textContent=`Play Round ${n+1}`;
-  $("copy").className=allDone?"big":"big ghost";
+  $("again").classList.toggle("hidden",allDone||fun); $("again").textContent=`Play Round ${n+1}`;
+  $("funBtn").classList.toggle("hidden",!(fun||n>=ROUNDS)); $("funBtn").className=(fun?"big":"big ghost")+($("funBtn").classList.contains("hidden")?" hidden":"");
+  $("backDay").classList.toggle("hidden",!fun); $("backDay").textContent=n>=ROUNDS?"Back to today's results":"Back to today's flight";
+  $("copy").classList.toggle("hidden",fun); $("openBoard2").classList.toggle("hidden",fun||LB.on);
+  $("copy").className=(allDone?"big":"big ghost")+(fun?" hidden":"");
   $("copy").textContent="Share results"; $("shareBox").style.display="none";
   $("dayBox").classList.toggle("hidden",!allDone);
   clearInterval(cdTimer);
@@ -418,6 +434,8 @@ $("addFriend").addEventListener("click",addFriends);
 $("pTabs").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; lbTab=b.dataset.t; SFX.play("click"); renderBoard(); });
 $("rank").addEventListener("click",e=>{ const b=e.target.closest(".rm"); if(!b) return; const f=friends(); delete f[b.dataset.k]; store.set(LBKEY,f); renderBoard(); });
 $("again").addEventListener("click",()=>{ SFX.play("start"); start(); });
+$("funBtn").addEventListener("click",()=>{ SFX.play("start"); startFun(); });
+$("backDay").addEventListener("click",()=>{ SFX.play("click"); if(DAY.done.length>=ROUNDS) start(); else { setAltitude(0,true); $("hoard").innerHTML=""; renderIntro(); show("intro"); } });
 $("skip").addEventListener("click",skip);
 $("tryMsg").addEventListener("click",e=>{ if(e.target&&e.target.id==="honorBtn") honor(); });
 $("copy").addEventListener("click",share);
