@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d1020">
+<title>That's Good Bird</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--night:#0d1020;--night2:#1a1f3a;--ink:#f4f0e6;--muted:#a3a6bd;--line:#2b3052;--card:#161a30;--card2:#0e1122;--gold:#f0c665;--gold2:#c9982f;--t0:#9a9cab;--t1:#d08f52;--t2:#e6c04f;--t3:#cfd9ec;--t4:#b892ff;--bad:#ee6f66;--good:#6fd39a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--night);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+body{min-height:100vh;background:radial-gradient(900px 500px at 75% -10%,#2b3160 0%,transparent 60%),linear-gradient(180deg,var(--night2),var(--night))}
+.wrap{max-width:520px;margin:0 auto;padding:10px 14px 28px;position:relative;line-height:1.4}
+.hidden{display:none!important}
+.center{text-align:center}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 10px}
+.top h1{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:27px;line-height:1.05;margin:0;letter-spacing:-.4px;color:var(--ink);transition:font-size .25s ease}
+.top h1 span{color:var(--gold)}
+.tag{color:var(--muted);font-size:12.5px;margin-top:3px}
+.tools{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.streak{font-weight:700;font-size:14px;color:var(--gold);padding:0 2px;white-space:nowrap}
+.playing .top h1{font-size:19px}
+.playing .tag{display:none}
+.playing .top{margin-bottom:8px}
+
+/* buttons */
+button{font:inherit;font-weight:700;border:0;border-radius:14px;padding:12px 16px;cursor:pointer;color:#1d1503;background:var(--gold);touch-action:manipulation;-webkit-user-select:none;user-select:none;transition:transform .1s ease,box-shadow .1s ease,opacity .15s ease;margin:0;text-transform:none;letter-spacing:0}
+button.big{display:block;width:100%;min-height:54px;font-size:18px;box-shadow:0 5px 0 var(--gold2);margin-top:14px}
+button.big:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 var(--gold2)}
+button:active:not(:disabled){transform:scale(.96)}
+button:disabled{opacity:.45;cursor:default}
+button.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);box-shadow:none}
+button.ghost.big:active:not(:disabled){transform:scale(.98);box-shadow:none}
+button.icon{width:44px;height:44px;padding:0;border-radius:50%;background:#ffffff0f;color:var(--ink);border:1px solid var(--line);font-size:17px;line-height:1}
+button:focus-visible,input:focus-visible{outline:3px solid #fff8;outline-offset:2px}
+
+/* sky scene */
+.sky{position:relative;height:150px;border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:12px;background:linear-gradient(180deg,#141a3c 0%,#232b5a 45%,#3a3f73 100%);transition:height .3s ease}
+.playing .sky{height:104px}
+.stars{position:absolute;inset:0;opacity:.4;transition:opacity 1s ease}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 3s ease-in-out infinite alternate}
+@keyframes twinkle{from{opacity:.25}to{opacity:1}}
+.moon{position:absolute;right:20px;top:14px;width:28px;height:28px;border-radius:50%;background:#f6ecd0;box-shadow:0 0 28px #f6ecd066,inset -6px -4px 0 #e2d5ae}
+.world{position:absolute;inset:0;transition:transform 1s cubic-bezier(.3,.9,.4,1)}
+.cloud{position:absolute;height:12px;border-radius:12px;background:#ffffff1c;animation:drift 22s linear infinite alternate}
+.cloud::before{content:"";position:absolute;left:18%;top:-7px;width:44%;height:16px;border-radius:12px;background:inherit}
+@keyframes drift{from{transform:translateX(-14px)}to{transform:translateX(14px)}}
+.ground{position:absolute;left:0;right:0;bottom:0;height:30px;transition:transform 1s cubic-bezier(.3,.9,.4,1)}
+.ground svg{display:block;width:100%;height:100%}
+.altbox{position:absolute;left:12px;top:9px;line-height:1}
+.altbox b{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:25px;display:block;text-shadow:0 2px 10px #0008}
+.altbox small{color:#d5d7ea;font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+.altbox b.bump{animation:bump .4s ease}
+@keyframes bump{50%{transform:scale(1.12);color:var(--gold)}}
+.hoard{position:absolute;right:10px;bottom:6px;display:flex;gap:1px;font-size:13px;filter:drop-shadow(0 1px 2px #000a)}
+.hoard span{display:inline-block}
+.hoard span.pop{animation:pop2 .5s cubic-bezier(.3,1.8,.5,1)}
+.crow{position:absolute;left:24%;bottom:12px;width:62px;transition:bottom 1s cubic-bezier(.3,1.3,.5,1);filter:drop-shadow(0 3px 4px #0006)}
+.crow .wing{transform-origin:30px 22px;animation:flap .45s ease-in-out infinite alternate}
+@keyframes flap{from{transform:rotate(-14deg)}to{transform:rotate(20deg)}}
+.crow.celebrate{animation:hop .7s cubic-bezier(.3,1.6,.5,1)}
+@keyframes hop{0%{transform:none}30%{transform:translateY(-16px) rotate(-12deg)}60%{transform:translateY(-4px) rotate(8deg)}100%{transform:none}}
+.crow.flinch{animation:flinch .4s ease}
+@keyframes flinch{0%,100%{transform:none}20%{transform:translateX(-5px) rotate(6deg)}50%{transform:translateX(5px) rotate(-6deg)}80%{transform:translateX(-2px)}}
+.floatpts{position:absolute;font-weight:800;font-family:Fraunces,Georgia,serif;font-size:20px;pointer-events:none;animation:floatup 1.1s ease-out forwards;text-shadow:0 2px 8px #000a;white-space:nowrap}
+@keyframes floatup{0%{opacity:0;transform:translateY(0) scale(.7)}15%{opacity:1;transform:translateY(-6px) scale(1.1)}100%{opacity:0;transform:translateY(-44px) scale(1)}}
+.feather{position:absolute;top:-20px;font-size:16px;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(190px) rotate(var(--r));opacity:0}}
+
+/* cards */
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 10px 30px #0005}
+.enter{animation:enter .35s cubic-bezier(.2,.8,.3,1)}
+@keyframes enter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.chip{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);border:1px solid #f0c66555;border-radius:999px;padding:4px 10px;white-space:nowrap}
+.lead{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:23px;line-height:1.2;margin:12px 0 10px;color:var(--ink)}
+.how{list-style:none;margin:0 0 12px;padding:0;color:var(--muted);font-size:14.5px}
+.how li{padding:5px 0 5px 26px;position:relative;margin:0}
+.how li::before{content:attr(data-i);position:absolute;left:0;top:5px}
+.how b{color:var(--ink);font-weight:600}
+.tiers{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:4px 0 2px}
+.tiers div{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:8px 2px 6px;text-align:center;line-height:1.15}
+.tiers span{font-size:19px;display:block}
+.tiers b{font-size:14px;display:block;margin-top:2px}
+.tiers small{font-size:9.5px;color:var(--muted);display:block;margin-top:1px}
+.your{color:var(--muted);font-size:14px;margin-top:6px}
+
+/* game */
+.hud{display:flex;align-items:center;gap:10px}
+.pips{display:flex;gap:5px;flex:1;justify-content:center}
+.pips i{width:11px;height:11px;border-radius:50%;background:#ffffff14;border:1.5px solid var(--line);display:block}
+.pips i.cur{border-color:var(--gold);background:#f0c66533;animation:pip 1s ease-in-out infinite alternate}
+@keyframes pip{to{transform:scale(1.3)}}
+.pips i.done{border-color:transparent;background:var(--c)}
+.pips i.miss{border-color:var(--bad);background:transparent}
+.secs{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:22px;min-width:30px;text-align:right;font-variant-numeric:tabular-nums}
+.secs.low{color:var(--bad);animation:pulse .5s ease-in-out infinite alternate}
+.timer{height:8px;background:var(--card2);border-radius:8px;overflow:hidden;margin:10px 0 12px}
+.timer i{display:block;height:100%;width:100%;background:var(--gold);transform-origin:left center;border-radius:8px;transition:background .4s ease}
+.timer.mid i{background:#eea24f}
+.timer.low i{background:var(--bad)}
+.timer.off{opacity:.25}
+.secs.off{visibility:hidden}
+@keyframes pulse{from{opacity:1}to{opacity:.5}}
+.q{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:22px;line-height:1.22;margin:0 0 14px;min-height:54px;color:var(--ink)}
+.qfade{animation:qfade .35s ease}
+@keyframes qfade{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+form{display:flex;gap:8px;margin:0}
+input[type=text]{flex:1;min-width:0;height:54px;font:inherit;font-size:18px;padding:0 14px;border-radius:14px;border:2px solid var(--line);background:var(--card2);color:var(--ink);outline:none;margin:0;-webkit-appearance:none;appearance:none}
+input[type=text]::placeholder{color:#6f7392}
+input[type=text]:focus{border-color:var(--gold)}
+#go{min-width:78px;height:54px;font-size:17px;box-shadow:0 4px 0 var(--gold2)}
+#go:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--gold2)}
+.under{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;min-height:44px}
+.trymsg{font-size:14px;color:var(--bad);flex:1;line-height:1.3}
+.honor{display:inline-block;margin-top:6px;padding:7px 11px;font-size:13px;background:transparent;color:var(--gold);border:1px solid #f0c66588;border-radius:10px}
+.skip{background:transparent;color:var(--muted);border:1.5px solid var(--line);padding:0 14px;height:44px;font-size:14px;white-space:nowrap;font-weight:600}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+/* result */
+.result{animation:pop .3s ease}
+@keyframes pop{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+.rhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tier{font-family:Fraunces,Georgia,serif;font-size:25px;font-weight:800;line-height:1.1;animation:pop2 .45s cubic-bezier(.3,1.8,.5,1)}
+@keyframes pop2{from{transform:scale(0) translateY(-14px)}to{transform:none}}
+.pts{font-weight:800;font-size:24px;font-family:Fraunces,Georgia,serif;white-space:nowrap}
+.ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:12px 0 10px}
+.ladder div{height:34px;border-radius:9px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:15px;opacity:.45;transition:all .3s ease}
+.ladder div.on{opacity:1;background:color-mix(in srgb,var(--c) 22%,var(--card2));border-color:var(--c);transform:translateY(-3px) scale(1.06);box-shadow:0 6px 14px #0006}
+.fix{color:var(--gold);font-size:13px;margin-top:4px}
+.rare{font-size:13.5px;color:var(--muted);margin-top:10px;line-height:1.5;background:var(--card2);border-radius:12px;padding:10px 12px}
+.rare b{color:var(--ink);font-weight:600}
+.splash{position:absolute;inset:0;border-radius:20px;background:#161a30f2;display:flex;align-items:center;justify-content:center;z-index:5}
+.splash div{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:44px;color:var(--gold);animation:zoom .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes zoom{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+
+/* summary */
+.stars3{display:flex;gap:6px;justify-content:center;font-size:40px;line-height:1;margin:12px 0 2px}
+.stars3 span{color:#ffffff1f;transform:scale(.8);transition:none}
+.stars3 span.on{color:var(--gold);animation:starpop .5s cubic-bezier(.3,1.9,.5,1) forwards;text-shadow:0 0 18px #f0c66588}
+@keyframes starpop{from{transform:scale(0) rotate(-40deg)}to{transform:scale(1) rotate(0)}}
+.bigalt{font-family:Fraunces,Georgia,serif;font-size:46px;font-weight:800;line-height:1;margin:6px 0 0;text-align:center;font-variant-numeric:tabular-nums}
+.summary ul{list-style:none;margin:14px 0 0;padding:0}
+.summary li{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14.5px;margin:0;animation:enter .35s ease both}
+.summary li .ic{font-size:20px;width:26px;text-align:center;flex-shrink:0}
+.summary li .tx{flex:1;min-width:0}
+.summary li .qq{display:block;color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.summary li .aa{display:block;font-weight:600}
+.summary li b{font-variant-numeric:tabular-nums}
+.daybox{margin-top:14px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.dayrow{display:flex;justify-content:space-between;align-items:center;font-size:14px;padding:3px 0;color:var(--muted)}
+.dayrow .st{color:var(--gold);letter-spacing:2px}
+.daytotal{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);margin-top:8px;padding-top:8px;font-weight:700}
+.daytotal b{font-family:Fraunces,Georgia,serif;font-size:24px;color:var(--gold)}
+.nextin{margin-top:8px;font-size:13px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+textarea{width:100%;margin-top:10px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:14px;margin-bottom:0}
+#shareBox{display:none}
+
+/* leaderboard */
+.board{margin-top:12px}
+.bhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bhead h3{font-family:Fraunces,Georgia,serif;font-size:20px;margin:0;color:var(--ink);font-weight:800}
+button.icon.sm{width:38px;height:38px;font-size:16px}
+.winners{font-size:13px;color:var(--muted);margin:8px 0 2px;line-height:1.6}
+.winners b{color:var(--gold);font-weight:600}
+.tabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:5px;margin:10px 0 6px;background:var(--card2);border-radius:12px;padding:4px}
+.tabs button{background:transparent;color:var(--muted);padding:9px 2px;font-size:13.5px;border-radius:9px;font-weight:600}
+.tabs button.on{background:var(--gold);color:#1d1503}
+.lbrows{list-style:none;margin:0;padding:0}
+.lbrows li{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;margin:0;font-size:15px}
+.lbrows li.me{background:#f0c66518;outline:1px solid #f0c66555}
+.lbrows .rk{width:26px;text-align:center;font-weight:700;color:var(--muted);flex-shrink:0}
+.lbrows .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.lbrows .nm small{color:var(--muted);font-weight:400;font-size:12px;margin-left:6px}
+.lbrows .vl{font-family:Fraunces,Georgia,serif;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lbjoin{display:flex;gap:8px;margin-top:10px}
+.lbjoin input{height:48px;font-size:17px}
+.lbjoin button{height:48px;white-space:nowrap}
+.linkish{background:none;border:0;padding:0;color:var(--gold);font-weight:600;font-size:inherit;text-decoration:underline;border-radius:4px}
+
+/* help */
+.modal{position:fixed;inset:0;background:#070914cc;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.sheet{width:100%;max-width:520px;max-height:88vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;animation:sheet .3s cubic-bezier(.2,.8,.3,1)}
+@keyframes sheet{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet h2{font-family:Fraunces,Georgia,serif;font-size:24px;margin:0 0 8px;color:var(--ink)}
+.legend{display:grid;grid-template-columns:auto 1fr auto;gap:7px 10px;font-size:14.5px;margin:12px 0 4px;align-items:center}
+.legend .p{color:var(--muted);text-align:right}
+/* name + leaderboard */
+.namerow{display:flex;align-items:center;gap:10px;margin:14px 0 0;font-size:14px;color:var(--muted);font-weight:600}
+.namerow span{white-space:nowrap}
+.namerow input[type=text]{height:46px;font-size:17px}
+.pwin{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0 12px}
+.pwin div{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:8px 4px;text-align:center;min-width:0}
+.pwin small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.pwin b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.pwin div.day{border-color:#f0c66588}
+.pwin div.day b{color:var(--gold)}
+.ptabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--card2);border-radius:12px;padding:4px;margin-bottom:6px}
+.ptabs button{background:transparent;color:var(--muted);padding:9px 4px;font-size:13.5px;border-radius:9px;font-weight:600}
+.ptabs button.on{background:var(--gold);color:#1d1503}
+.rank{list-style:none;margin:0;padding:0}
+.rank li{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--line);margin:0;border-radius:10px}
+.rank li.me{background:#f0c66514}
+.rank .pos{width:26px;text-align:center;font-weight:800;font-family:Fraunces,Georgia,serif;font-size:17px;color:var(--muted);flex-shrink:0}
+.rank .who{flex:1;min-width:0}
+.rank .nm{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank .sub{display:block;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.rank .sc{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rank .rm{background:transparent;color:var(--muted);border:0;padding:6px 8px;font-size:16px}
+.addbox{margin-top:16px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.addbox p{margin:4px 0 0}
+.foot{color:#7d819e;font-size:12px;text-align:center;margin-top:16px}
+@media (min-width:560px){.sky{height:170px}.playing .sky{height:130px}.modal{align-items:center}}
+.rm *,.rm *::before{animation:none!important;transition:none!important}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap" data-lb="">
+  <div class="top">
+    <div>
+      <h1>That's Good <span>Bird</span></h1>
+      <div class="tag">Good game no scrumps</div>
+    </div>
+    <div class="tools">
+      <span class="streak hidden" id="streak"></span>
+      <button class="icon" id="help" type="button" aria-label="How to play">?</button>
+      <button class="icon" id="mute" type="button" aria-label="Sound on or off">🔊</button>
+    </div>
+  </div>
+
+  <div class="sky" id="sky" aria-hidden="true">
+    <div class="stars" id="stars"></div>
+    <div class="moon"></div>
+    <div class="world" id="world">
+      <div class="cloud" style="left:8%;top:-34px;width:70px"></div>
+      <div class="cloud" style="left:58%;top:-78px;width:96px;animation-duration:30s"></div>
+      <div class="cloud" style="left:26%;top:-128px;width:60px;animation-duration:18s"></div>
+      <div class="cloud" style="left:66%;top:-170px;width:80px;animation-duration:26s"></div>
+      <div class="cloud" style="left:4%;top:-206px;width:110px;animation-duration:34s"></div>
+    </div>
+    <div class="ground" id="ground">
+      <svg viewBox="0 0 400 30" preserveAspectRatio="none"><path d="M0 30V17Q45 5 90 15T180 13T265 18T345 9T400 15V30Z" fill="#0a0c18"/><path d="M300 12l5-10 5 10zM312 13l4-8 4 8zM60 13l4-8 4 8z" fill="#0a0c18"/></svg>
+    </div>
+    <div class="altbox"><b id="altitude">0 ft</b><small>altitude</small></div>
+    <div class="hoard" id="hoard"></div>
+    <svg class="crow" id="crow" viewBox="0 0 64 40">
+      <path d="M9 22L0 17l3 7-3 5 11-3z" fill="#07070c"/>
+      <ellipse cx="28" cy="24" rx="19" ry="8.5" fill="#0b0b12"/>
+      <circle cx="47" cy="19" r="7.2" fill="#0b0b12"/>
+      <path d="M53 16.5L63 19.5 53 22.5z" fill="#2a2a34"/>
+      <circle cx="49" cy="17.5" r="1.5" fill="#f0c665"/><circle cx="49.5" cy="17" r=".5" fill="#fff"/>
+      <path class="wing" d="M31 22C23 5 12 3 5 5c9 6 13 13 17 22z" fill="#1d1d2a"/>
+    </svg>
+  </div>
+
+  <!-- Intro -->
+  <div class="card" id="intro">
+    <span class="chip" id="dayLabel">Today's Flight</span>
+    <h2 class="lead">Name something. The rarer your answer, the higher you fly.</h2>
+    <ul class="how">
+      <li data-i="🎯"><b id="howRounds">3 rounds</b> of 7 questions, 25 seconds each</li>
+      <li data-i="🪨">Obvious answers are strinky coal. <b>Rare ones are the good stuff.</b></li>
+      <li data-i="🔁">Missed? <b>Guess again</b> until time runs out. Spelling is forgiven.</li>
+    </ul>
+    <div class="tiers" id="legend"></div>
+    <label class="namerow"><span>Flying as</span><input type="text" id="nameIn" maxlength="14" placeholder="Your name" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="done"></label>
+    <button class="big" id="startDaily" type="button">Play</button>
+    <button class="big ghost" id="openBoard" type="button">🏆 Today's leaderboard</button>
+    <div class="your center" id="progressNote"></div>
+  </div>
+
+  <!-- Game -->
+  <div class="card hidden" id="game">
+    <div class="hud">
+      <span class="chip" id="roundChip">Round 1</span>
+      <div class="pips" id="pips"></div>
+      <span class="secs" id="secs">25</span>
+    </div>
+    <div class="timer" id="timer"><i id="timebar"></i></div>
+    <div class="q" id="question"></div>
+    <div id="play">
+      <form id="form" autocomplete="off">
+        <input type="text" id="answer" placeholder="Type an answer…" aria-label="Your answer" autocapitalize="words" autocorrect="off" autocomplete="off" spellcheck="false" enterkeyhint="go">
+        <button type="submit" id="go" aria-label="Submit answer">Caw</button>
+      </form>
+      <div class="under"><div class="trymsg" id="tryMsg" aria-live="polite"></div><button type="button" class="skip" id="skip">Skip →</button></div>
+    </div>
+    <div class="result hidden" id="result" aria-live="polite">
+      <div class="rhead"><div class="tier" id="tierName"></div><div class="pts" id="pts"></div></div>
+      <div class="ladder" id="ladder"></div>
+      <div class="your" id="your"></div>
+      <div class="rare" id="rareList"></div>
+      <button class="big" id="next" type="button">Next</button>
+    </div>
+    <div class="splash hidden" id="splash"><div id="splashText"></div></div>
+  </div>
+
+  <!-- Summary -->
+  <div class="card summary hidden" id="summary">
+    <div class="center"><span class="chip" id="sumLabel"></span></div>
+    <div class="stars3" id="sumStars"><span>★</span><span>★</span><span>★</span></div>
+    <div class="bigalt" id="sumAlt"></div>
+    <div class="your center" id="sumScore"></div>
+    <div class="daybox hidden" id="dayBox">
+      <div id="dayRows"></div>
+      <div class="daytotal"><span>Today's total</span><b id="dayTotal"></b></div>
+      <div class="nextin" id="dayMeta"></div>
+      <div class="nextin" id="nextIn"></div>
+    </div>
+    <button class="big" id="again" type="button"></button>
+    <button class="big ghost" id="copy" type="button">Share results</button>
+    <textarea id="shareBox" rows="6" readonly></textarea>
+    <button class="big ghost" id="openBoard2" type="button">🏆 Today's leaderboard</button>
+    <ul id="sumList"></ul>
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="card board hidden" id="board">
+    <div class="bhead"><h3>🏆 Today's leaderboard</h3><button class="icon sm" id="lbRefresh" type="button" aria-label="Refresh leaderboard">↻</button></div>
+    <form class="lbjoin hidden" id="lbJoin" autocomplete="off">
+      <input type="text" id="lbName" maxlength="16" placeholder="Your name" aria-label="Your name" autocapitalize="words" autocorrect="off" spellcheck="false" enterkeyhint="done">
+      <button type="submit">Join</button>
+    </form>
+    <div class="winners" id="lbWinners"></div>
+    <div class="tabs" id="lbTabs"></div>
+    <ol class="lbrows" id="lbRows"></ol>
+    <div class="your center" id="lbNote" aria-live="polite"></div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="card hidden" id="pboard">
+    <div class="center"><span class="chip" id="boardLabel"></span></div>
+    <h2 class="lead center">Leaderboard</h2>
+    <div class="pwin" id="pWinners"></div>
+    <div class="ptabs" id="pTabs"></div>
+    <ol class="rank" id="rank"></ol>
+    <div class="your center" id="rankNote"></div>
+    <div class="addbox">
+      <b>Add a friend's score</b>
+      <p class="your">Paste the results a friend shared. Their score code is read automatically.</p>
+      <textarea id="pasteIn" rows="3" placeholder="Paste a friend's shared results here" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+      <button class="big ghost" id="addFriend" type="button">Add to leaderboard</button>
+      <div class="your" id="addMsg" aria-live="polite"></div>
+    </div>
+    <button class="big" id="boardBack" type="button">Back</button>
+  </div>
+
+  <div class="foot">Beta · a new flight every day at midnight</div>
+
+  <!-- Help -->
+  <div class="modal hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="sheet">
+      <h2 id="helpTitle">How to play</h2>
+      <ul class="how">
+        <li data-i="🎯">Each question has lots of right answers. Type <b>one</b>.</li>
+        <li data-i="💎">The <b>less obvious</b> your answer, the more it's worth.</li>
+        <li data-i="⏱️">You get <b>25 seconds</b>. A wrong guess costs nothing, so keep trying.</li>
+        <li data-i="✨">Close counts. Typos and partial answers are <b>autocorrected</b>.</li>
+        <li data-i="🤞">Sure you're right but it's not on the list? Claim it for 10 points.</li>
+        <li data-i="🙈">Stuck? <b>Skip</b> and see what would have counted.</li>
+      </ul>
+      <div class="legend" id="legendFull"></div>
+      <button class="big" id="closeHelp" type="button">Got it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- TIERS ---------- */
+const TIERS = [
+  {name:"Strinky Coal", pts:10,  icon:"🪨", color:"var(--t0)"},
+  {name:"Good Scrump", pts:30,  icon:"🦐", color:"var(--t1)"},
+  {name:"Mmm That's Good Bird", pts:60,  icon:"🍔", color:"var(--t2)"},
+  {name:"¡Crowalé!", pts:85,  icon:"🫃", color:"var(--t3)"},
+  {name:"One in a Murder", pts:100, icon:"🐦‍⬛", color:"var(--t4)"}
+];
+const FT_PER_PT = 4;
+
+/* ---------- PROMPTS ----------
+   t = [strinky coal, good scrump, mmm that's good bird, crowalé, one in a murder]
+   "Display|alias|alias" — first item is shown. "~word" = keyword match. people:true allows last-name answers. */
+const P = [
+/* Guillermo del Toro — life & biography */
+{topic:"Guillermo del Toro", q:"Name a fact about Guillermo del Toro's life (not just a movie)", t:[
+ ["Born in Guadalajara, Mexico|~guadalajara|~mexic|~jalisco","Won Oscars|~oscar|~academy award"],
+ ["Obsessed with monsters|~monster","Friends with Cuarón & Iñárritu (the Three Amigos)|~three amigos|~amigos|~cuaron|~inarritu","Catholic upbringing|~catholic","Collects horror memorabilia|~collect|~memorabilia"],
+ ["His house of monsters, Bleak House|~bleak house","His father was kidnapped|~kidnap|~ransom","Keeps detailed notebooks|~notebook|~sketchbook|~journal","Started in makeup & special effects|~makeup|~special effects|~prosthetic|~sfx|~effects","Raised partly by his grandmother|~grandmother|~grandma","Star on the Hollywood Walk of Fame|~walk of fame"],
+ ["Trained under Dick Smith (The Exorcist's makeup artist)|~dick smith|~exorcist","Ran an effects company called Necropia|~necropia","Wrote a book about Alfred Hitchcock|~hitchcock","Was set to direct The Hobbit, then left|~hobbit","James Cameron helped pay his father's ransom|~cameron","Born in 1964|~1964"],
+ ["Born October 9|~october 9|~oct 9","Dreams of making At the Mountains of Madness|~mountains of madness|~lovecraft","Spends much of his time in Toronto|~toronto","LACMA exhibit 'At Home with Monsters'|~lacma|~at home with monsters","Partner Kim Morgan|~kim morgan"]]},
+{topic:"Guillermo del Toro", q:"Name a person who's been important in Guillermo del Toro's life or career", people:true, t:[
+ ["Alfonso Cuarón|Alfonso Cuaron|Cuaron","Ron Perlman"],
+ ["Alejandro González Iñárritu|Alejandro Gonzalez Inarritu|Inarritu|Alejandro Inarritu","James Cameron","Doug Jones","Peter Jackson"],
+ ["Mike Mignola","Guillermo Navarro","Hideo Kojima|Kojima","Alexandre Desplat","Kim Morgan","Dick Smith","Boris Karloff"],
+ ["Chuck Hogan","Daniel Kraus","Lorenza Newton","Federico del Toro|His father|Dad","Javier Navarrete","Dan Laustsen","Mark Gustafson","Matthew Robbins","Vanessa Taylor","Harvey Weinstein|Weinstein"],
+ ["Mariana del Toro|Mariana","Marisa del Toro|Marisa","His grandmother|Grandmother|Grandma","Federico Luppi","Sergio Sánchez|Sergio Sanchez","J.A. Bayona|Juan Antonio Bayona|Bayona"]]},
+{topic:"Guillermo del Toro", q:"Name an artist, writer, or film that influenced Guillermo del Toro", t:[
+ ["Frankenstein|Frankenstein 1931","Alfred Hitchcock|Hitchcock"],
+ ["Mary Shelley","H.P. Lovecraft|HP Lovecraft|Lovecraft","Boris Karloff|Karloff","Edgar Allan Poe|Poe","Godzilla","Universal Monsters|Universal monster movies"],
+ ["Francisco Goya|Goya","Luis Buñuel|Luis Bunuel|Bunuel","Mario Bava|Bava","Ray Harryhausen|Harryhausen","Lon Chaney","Hammer Films|Hammer Horror|Hammer","Catholicism|Catholic imagery","Comic books|Comics","Fairy tales|Fairytales","Alice in Wonderland|Lewis Carroll"],
+ ["Arthur Rackham|Rackham","James Whale","Bernie Wrightson|Wrightson","Mike Mignola|Mignola","Ultraman","Jack Kirby","Dick Smith","Mexican folklore|Folklore","Charles Dickens|Dickens","Bride of Frankenstein","Creature from the Black Lagoon|Black Lagoon"],
+ ["Richard Corben","Harry Clarke","Moebius","Jean Cocteau|Cocteau|Beauty and the Beast","Carlos Enrique Taboada","Algernon Blackwood","Arthur Machen","Ambrose Bierce","Frankenstein Meets the Wolf Man"]]},
+{topic:"Guillermo del Toro", q:"Name a del Toro project that ISN'T a movie he directed (books, TV, producing, unmade)", t:[
+ ["The Strain|Strain","Trollhunters|Tales of Arcadia"],
+ ["Cabinet of Curiosities|Guillermo del Toro's Cabinet of Curiosities","The Hobbit|Hobbit","Kung Fu Panda 2","The Orphanage|El Orfanato","Mama","Scary Stories to Tell in the Dark|Scary Stories"],
+ ["Don't Be Afraid of the Dark","The Book of Life|Book of Life","Rise of the Guardians","Puss in Boots","Death Stranding","Silent Hills|P.T.|PT","At the Mountains of Madness","Antlers","3Below","Wizards","The Shape of Water novel|Novels|Books"],
+ ["Julia's Eyes|Los ojos de Julia","Splice","Haunted Mansion","Justice League Dark","Pacific Rim Uprising","Hellboy Animated|Sword of Storms|Blood and Iron","Kung Fu Panda 3","Biutiful","Rudo y Cursi"],
+ ["Book about Hitchcock|Hitchcock book|El cine de Alfred Hitchcock","Cabinet of Curiosities book|My Notebooks|Notebooks","Necropia","Hora Marcada","Cha Cha Cha Films|Cha Cha Cha","The Tequila Gang|Tequila Gang"]]},
+{topic:"Guillermo del Toro", q:"Name an award or honor Guillermo del Toro has received", t:[
+ ["Oscar|Academy Award|Oscars|Academy Awards"],
+ ["Golden Globe|Golden Globes","Best Director","Best Picture","BAFTA","Best Animated Feature"],
+ ["Golden Lion|Venice|Venice Film Festival","DGA Award|DGA|Directors Guild","Critics' Choice Award|Critics Choice","Annie Award|Annies","Hollywood Walk of Fame star|Walk of Fame"],
+ ["Hugo Award|Hugo","Saturn Award|Saturn","Ariel Award|Ariel","Goya Award|Goya","Producers Guild Award|PGA"],
+ ["Cannes Critics' Week prize|Critics Week|Cannes","Mercedes-Benz Award","Honorary doctorate|Doctorate","Mexican Academy|Mexico's Academy"]]},
+
+/* Buca di Beppo */
+{topic:"Buca di Beppo", q:"Name a dish you could order at Buca di Beppo", t:[
+ ["Spaghetti and Meatballs|Spaghetti|Meatballs|Spaghetti with meatballs","Chicken Parmigiana|Chicken Parm|Chicken Parmesan","Fettuccine Alfredo|Alfredo","Lasagna"],
+ ["Baked Ziti|Ziti","Garlic Bread|Mozzarella Garlic Bread","Chicken Marsala|Marsala","Tiramisu","Fried Calamari|Calamari","Caesar Salad","Eggplant Parmigiana|Eggplant Parm|Eggplant Parmesan"],
+ ["Bruschetta","Shrimp Scampi|Scampi","Penne","Ravioli","Manicotti","Brownie Sundae|Colossal Brownie Sundae","Cheesecake","Pizza","Rigatoni","Italian Sausage|Sausage"],
+ ["Chicken Limone|Limone","Spicy Chicken Rigatoni","Apple Gorgonzola Salad","Italian Salad|Mixed Green Salad","Chicken Carbonara|Carbonara","Cannoli","Spaghetti Marinara|Marinara","Stuffed Mushrooms","Meat Lasagna"],
+ ["Mozzarella Caprese|Caprese","Penne Arrabbiata|Arrabbiata","Chicken Saltimbocca|Saltimbocca","Linguine Frutti di Mare|Frutti di Mare","Tuscan Salmon|Salmon","Kids menu"]]},
+{topic:"Buca di Beppo", q:"Name something you'd see or experience at Buca di Beppo", t:[
+ ["Family-style portions|Family style|Huge portions|Giant portions|Big portions|Platters","The Pope's Table|Pope's Table|Pope table|The Pope|Pope|Pope bust|Bust of the Pope"],
+ ["Kitschy decor|Kitsch|Tacky decor|Decor","Old photos|Photos on the walls|Photos|Pictures|Vintage photos","Birthday party|Birthday|Birthdays","Lazy Susan","Red sauce"],
+ ["The Kitchen Table|Kitchen table|Eat in the kitchen","Chianti bottles|Wine bottles|Chianti","Red checkered tablecloths|Checkered tablecloth|Tablecloths","Celebrity photos|Celebrities","Leftovers|To-go boxes|Takeout boxes","Statues|Statue","Italian flags|Flag"],
+ ["Christmas lights|String lights","Frank Sinatra|Sinatra|Dean Martin|Rat Pack","Murals|Mural","Basement|Underground|Downstairs","Big groups|Large groups|Group dinners","Wine"],
+ ["Nude statues|Naked statues|Nudity","Minneapolis","Bankruptcy|Chapter 11","Each room is themed|Themed rooms","Shrine"]]},
+
+/* Crows */
+{topic:"Crows", q:"Name a member of the crow family (corvids)", t:[
+ ["Crow","Raven"],
+ ["Blue Jay|Bluejay","Magpie","American Crow","Common Raven","Jay"],
+ ["Rook","Jackdaw","Steller's Jay|Stellers Jay","Scrub Jay|Scrub-Jay|California Scrub Jay","Clark's Nutcracker|Nutcracker","Gray Jay|Canada Jay|Grey Jay|Whiskey Jack"],
+ ["Chough","Fish Crow","Hooded Crow","Carrion Crow","New Caledonian Crow","Treepie","Pinyon Jay","Green Jay","Eurasian Jay","Jungle Crow","House Crow","Yellow-billed Magpie","Black-billed Magpie","Chihuahuan Raven","White-necked Raven"],
+ ["Hawaiian Crow|Alala|'Alala","Piapiac","Azure-winged Magpie","Ground Jay","Brown Jay","Florida Scrub-Jay|Florida Scrub Jay","Thick-billed Raven"]]},
+{topic:"Crows", q:"Name something crows are known to do", t:[
+ ["Caw|Cawing","Eat garbage|Scavenge|Eat trash|Dig through trash"],
+ ["Use tools|Tool use","Recognize faces|Remember faces","Hold grudges|Hold a grudge|Remember people","Collect shiny things|Steal shiny things|Like shiny things","Eat roadkill","Fly in groups|Flock"],
+ ["Give gifts|Bring gifts|Leave gifts","Hold funerals|Funerals|Mourn their dead","Mimic speech|Talk|Mimic sounds|Imitate","Solve puzzles","Drop nuts on roads|Crack nuts with cars|Use cars to crack nuts","Mob predators|Mobbing|Chase hawks|Harass owls"],
+ ["Anting","Play|Sled on snow|Slide down roofs","Cache food|Hide food|Bury food","Roost together|Communal roosting|Roost","Cooperative breeding|Raise young together|Helpers at the nest","Steal food|Thieve","Plan ahead"],
+ ["Water displacement|Drop stones in water|Aesop's fable","Metatool use|Use tools to get tools","Bend wire into hooks|Make hooks","Count","Teach their kids to hate people|Pass grudges to offspring|Teach grudges"]]},
+
+/* Video games */
+{topic:"Video Games", q:"Name a video game console", t:[
+ ["PlayStation|PS1|PlayStation 1|PSX","Nintendo Switch|Switch","Xbox"],
+ ["PlayStation 5|PS5","PlayStation 2|PS2","Nintendo 64|N64","Xbox 360|360","Wii","Game Boy|Gameboy","NES|Nintendo Entertainment System|Nintendo","Super Nintendo|SNES","PlayStation 4|PS4","Xbox One","Atari|Atari 2600"],
+ ["GameCube","Sega Genesis|Genesis|Mega Drive","PlayStation 3|PS3","Nintendo DS|DS","Xbox Series X|Series X|Xbox Series S|Series S","Switch 2|Nintendo Switch 2","Game Boy Advance|GBA","Steam Deck","PSP","Wii U","3DS|Nintendo 3DS","Dreamcast|Sega Dreamcast","Game Boy Color|GBC"],
+ ["Sega Saturn|Saturn","Game Gear|Sega Game Gear","Sega Master System|Master System","PS Vita|Vita|PlayStation Vita","Virtual Boy","TurboGrafx-16|TurboGrafx|PC Engine","Neo Geo","ColecoVision","Intellivision","Sega CD","Atari Jaguar|Jaguar","Atari Lynx|Lynx","Game & Watch|Game and Watch","Famicom","Ouya"],
+ ["Magnavox Odyssey|Odyssey","3DO","N-Gage","Vectrex","32X|Sega 32X","WonderSwan","Pippin|Apple Pippin","Atari 7800","Atari 5200","Fairchild Channel F|Channel F","Pokémon Mini|Pokemon Mini","Nomad|Sega Nomad","Neo Geo Pocket","Playdate","Tiger Electronics|Game.com"]]},
+{topic:"Video Games", q:"Name a character from the Super Mario universe", t:[
+ ["Mario","Luigi","Bowser","Princess Peach|Peach"],
+ ["Yoshi","Toad","Wario","Waluigi","Donkey Kong|DK","Princess Daisy|Daisy","Goomba","Koopa Troopa|Koopa"],
+ ["Rosalina","Boo","Shy Guy","Toadette","Bowser Jr.|Bowser Jr|Bowser Junior","Diddy Kong|Diddy","Birdo","Lakitu","Bob-omb|Bobomb","Chain Chomp","Piranha Plant","King Boo","Dry Bones","Bullet Bill"],
+ ["Kamek","Pauline","Cappy","Petey Piranha","Hammer Bro|Hammer Brothers","Blooper","Thwomp","Wiggler","Captain Toad","Toadsworth","Professor E. Gadd|E. Gadd","Lubba","Luma","Spiny","Cheep Cheep","Larry Koopa|Larry","Morton Koopa|Morton","Wendy O. Koopa|Wendy","Iggy Koopa|Iggy","Roy Koopa|Roy","Lemmy Koopa|Lemmy","Ludwig von Koopa|Ludwig","Koopalings","Nabbit"],
+ ["Fawful","Geno","Mallow","Kammy Koopa|Kammy","Cackletta","Tatanga","Wart","Count Bleck","Dimentio","Huey","Kersti","Pom Pom","Boom Boom","Foreman Spike|Spike","Ninji","Pokey","Fuzzy","Monty Mole"]]},
+
+/* Lady Bird */
+{topic:"Lady Bird", q:"Name an actor or character from the movie Lady Bird", people:true, t:[
+ ["Saoirse Ronan|Saoirse","Lady Bird|Christine McPherson|Christine","Timothée Chalamet|Timothee Chalamet|Timothee"],
+ ["Laurie Metcalf","Lucas Hedges","Beanie Feldstein","Marion McPherson|Marion|Lady Bird's mom|The mom|Mom","Kyle|Kyle Scheible"],
+ ["Tracy Letts","Danny O'Neill|Danny","Julie Steffans|Julie","Larry McPherson|Larry|The dad|Dad","Lois Smith","Sister Sarah Joan|Sarah Joan","Odeya Rush","Jenna Walton|Jenna"],
+ ["Stephen McKinley Henderson","Father Leviatch","Miguel McPherson|Miguel","Jordan Rodrigues","Marielle Scott","Shelly Yuhan|Shelly","Kathryn Newton","Jake McDorman","Mr. Bruno","Darlene"],
+ ["John Karna","Bob Stephenson","Andy Buckley","Kristen Cloke","Danny's grandma|Grandma","Father Walther","Greg Anrue","Laura Marano","Jake Cormier"]]},
+{topic:"Lady Bird", q:"Name something from (or about) the movie Lady Bird", t:[
+ ["Sacramento","Greta Gerwig|Greta"],
+ ["Catholic school|Catholic high school|Immaculate Heart","Prom","Crash Into Me|Dave Matthews Band|Dave Matthews","New York|NYC","College applications|College","Pink hair|Red hair|Dyed hair","A24"],
+ ["The school musical|Musical|Merrily We Roll Along|Theater","The blue house|Danny's grandma's house|Blue house","Thrift store|Thrifting","Jumping out of the car|Jumps out of the car|Broken arm|Cast|Pink cast","2002","The waitlist|Waitlist","Communion wafers|Eating communion wafers|Wafers","Wrong side of the tracks|The tracks"],
+ ["Oscar nominations|Oscars|5 Oscar nominations|Best Picture nomination","Driving test|Driver's license|Driving","Thanksgiving","Alanis Morissette|Hand in My Pocket","Iraq War|Iraq","Mathletes|Math club","Mom's letters|Letters from mom","Snow","Danny comes out|Danny is gay"],
+ ["Rotten Tomatoes record|Rotten Tomatoes|100% on Rotten Tomatoes","Davis|UC Davis","Tower Bridge","Football coach directing the play|Football coach","Kyle's anarchism|Anarchy|Anarchist","Psychiatric nurse|Nurse|Mom is a nurse"]]},
+/* The Sinner */
+{topic:"The Sinner", q:"Name an actor or character from The Sinner", people:true, t:[
+ ["Bill Pullman","Harry Ambrose|Ambrose|Detective Ambrose","Jessica Biel"],
+ ["Cora Tannetti|Cora","Carrie Coon","Matt Bomer","Christopher Abbott","Mason Tannetti|Mason"],
+ ["Frankie Belmont|Frankie","Vera Walker|Vera","Julian Walker|Julian","Jamie Burns|Jamie","Chris Messina","Nick Haas|Nick","Dan Leroy|Leroy","Dohn Norwood","Tracy Letts","Phoebe Lacey|Phoebe","J.D.|JD"],
+ ["Jessica Hecht","Sonya Barzel|Sonya","Natalie Paul","Heather Novack|Heather","Jack Novack","Elisha Henig","Parisa Fitz-Henley","Leela Burns|Leela","Alice Kremelberg","Percy Muldoon|Percy","Frances Fisher","Meg Muldoon|Meg","Nadia Alexander","Jacob Pitts"],
+ ["Neal Huff","Sean Muldoon|Sean","Eric Todd","Hannah Gross","Marin Calhoun|Marin","Derek Simonds"]]},
+{topic:"The Sinner", q:"Name something from The Sinner (plot, places, details)", t:[
+ ["Cora stabs a man on the beach|~stab|~beach","Detective Harry Ambrose|~ambrose|~detective"],
+ ["USA Network|~usa","Netflix|~netflix","The song 'Huggin & Kissin'|~huggin|~song|~music","Each season is a new case|~anthology|~each season|~new case"],
+ ["Mosswood commune|~mosswood|~commune|~cult","Keller, NY — Ambrose's hometown|~keller","She was cutting a pear|~pear|~fruit|~paring knife|~knife","Upstate New York|~upstate|~new york","Jessica Biel's Emmy nomination|~emmy","Hanover Island, Maine|~hanover|~maine","Repressed memories|~memor|~repress"],
+ ["Based on a Petra Hammesfahr novel|~hammesfahr|~novel|~book","The Beverwyck club|~beverwyck","Four seasons|~4 seasons|~four seasons","Ambrose is retired in season 4|~retire","A fishing family, the Muldoons|~fishing|~muldoon"],
+ ["Created by Derek Simonds|~simonds|~derek","Original novel is German|~german|~germany","The Belmont family|~belmont","Lighthouse|~lighthouse"]]},
+
+/* The Good Doctor */
+{topic:"The Good Doctor", q:"Name an actor or character from The Good Doctor", people:true, t:[
+ ["Freddie Highmore","Shaun Murphy|Shaun|Dr. Murphy|Dr Murphy"],
+ ["Richard Schiff","Aaron Glassman|Glassman|Dr. Glassman","Antonia Thomas","Claire Browne|Claire","Lea Dilallo|Lea","Paige Spara"],
+ ["Hill Harper","Marcus Andrews|Andrews","Christina Chang","Audrey Lim|Lim","Nicholas Gonzalez","Neil Melendez|Melendez","Fiona Gubelmann","Morgan Reznick|Morgan","Will Yun Lee","Alex Park|Park"],
+ ["Chuku Modu","Jared Kalu|Jared","Beau Garrett","Jessica Preston","Tamlyn Tomita","Allegra Aoki|Aoki","Noah Galvin","Asher Wolke|Asher","Jasika Nicole","Carly Lever|Carly","Steve Murphy|Steve","Dylan Kingwell"],
+ ["Bria Samoné Henderson|Bria Samone Henderson|Bria Henderson","Jordan Allen|Jordan","Osvaldo Benavides","Mateo Rendón|Mateo Rendon|Mateo","Brandon Larracuente","Daniel Perez","Kayla Cromer","Charlie Lukaitis|Charlie","Kenny","Graham Verchere","David Shore","Daniel Dae Kim"]]},
+{topic:"The Good Doctor", q:"Name something from The Good Doctor (plot, places, details)", t:[
+ ["Shaun is autistic|~autis","Surgical residents|~surg|~resident|~hospital"],
+ ["Savant syndrome|~savant|~genius","St. Bonaventure Hospital|~bonaventure","ABC|~abc","The toy scalpel|~scalpel|~toy","Shaun and Lea get married|~married|~wedding|~marry"],
+ ["Based on a Korean show|~korea","From David Shore, creator of House|~david shore|~house","San Jose|~san jose","From Casper, Wyoming|~wyoming|~casper","Shaun's brother Steve died|~brother","Glassman's brain tumor|~tumor|~cancer|~brain"],
+ ["Shaun & Lea have a baby|~son|~baby|~kid","The Good Lawyer spinoff|~good lawyer|~lawyer|~spinoff","Shaun sees anatomy as glowing diagrams|~visual|~diagram|~anatomy|~graphics","Seven seasons|~7 seasons|~seven seasons","Shaun becomes an attending|~attending"],
+ ["Kenny, the neighbor|~kenny|~neighbor","Daniel Dae Kim produced it|~daniel dae kim","Sony Pictures Television|~sony","Shaun's mentor teaches him to drive|~drive|~driving","Lea's job in the IT department|~it department|~tech"]]},
+
+/* Criminal Minds */
+{topic:"Criminal Minds", q:"Name a BAU team member from Criminal Minds (actor or character)", people:true, t:[
+ ["Spencer Reid|Reid|Dr. Reid","Matthew Gray Gubler|Gubler","Penelope Garcia|Garcia","Derek Morgan|Morgan"],
+ ["Aaron Hotchner|Hotch|Hotchner","Thomas Gibson","Shemar Moore","David Rossi|Rossi","Joe Mantegna","Jennifer Jareau|JJ|J.J.","A.J. Cook|AJ Cook","Emily Prentiss|Prentiss","Paget Brewster","Kirsten Vangsness"],
+ ["Jason Gideon|Gideon","Mandy Patinkin","Luke Alvez|Alvez","Adam Rodriguez","Tara Lewis","Aisha Tyler","Matt Simmons|Simmons","Daniel Henney","Elle Greenaway|Elle","Lola Glaudini"],
+ ["Alex Blake","Jeanne Tripplehorn","Kate Callahan|Callahan","Jennifer Love Hewitt","Stephen Walker","Damon Gupton","Ashley Seaver|Seaver","Rachel Nichols","Erin Strauss|Strauss","Jayne Atkinson"],
+ ["Jordan Todd","Meta Golding","Mateo Cruz","Esai Morales","Tyler Green","Ryan-James Hatanaka"]]},
+{topic:"Criminal Minds", q:"Name a Criminal Minds villain (unsub) or the actor who played one", people:true, t:[
+ ["The Reaper|George Foyet|Foyet|Boston Reaper","Mr. Scratch|Peter Lewis|Scratch"],
+ ["Elias Voit|Voit|Sicarius","Tobias Hankel|Hankel","Frank Breitkopf","Cat Adams","The Replicator","Ian Doyle|Doyle"],
+ ["C. Thomas Howell","Bodhi Elfman","Zach Gilford","James Van Der Beek","Keith Carradine","Aubrey Plaza","Mark Hamill","John Curtis"],
+ ["Karl Arnold|The Fox","Benjamin Cyrus|Cyrus","Adrian Bale","The Boston Reaper"],
+ ["Luke Perry","Neal Jones"]]},
+{topic:"Criminal Minds", q:"Name something from Criminal Minds (plot, lingo, details)", t:[
+ ["Unsub|~unsub","BAU / Behavioral Analysis Unit|~bau|~behavioral analysis","FBI|~fbi"],
+ ["Profiling|~profil","Quantico|~quantico","Serial killers|~serial","Wheels up|~wheels up","The jet|~jet|~plane","CBS|~cbs"],
+ ["Opening and closing quotes|~quote","Reid's 187 IQ|~187|~iq","Reid's eidetic memory|~eidetic|~photographic","Garcia's 'baby girl' with Morgan|~baby girl|~hot stuff|~chocolate thunder","Hotch's wife Haley|~haley","Criminal Minds: Evolution on Paramount+|~evolution|~paramount","Virginia|~virginia"],
+ ["Suspect Behavior spinoff|~suspect behavior","Beyond Borders spinoff|~beyond borders","Reid goes to prison|~prison|~jail","Gideon's cabin|~cabin","Rossi's cooking|~cooking|~pasta|~rossi","Garcia's colorful office|~office|~figurines|~toys","Reid's mom, Diana|~diana|~reid s mom|~mother","Reid's magic tricks|~magic","Fifteen seasons|~15 seasons|~fifteen seasons"],
+ ["Created by Jeff Davis|~jeff davis","Reid's mismatched socks|~sock","Maeve|~maeve","Thomas Gibson was fired|~fired","JJ's stint at the Pentagon|~pentagon","Prentiss fakes her death|~faked|~fake death|~fakes her death"]]},
+/* --- extra prompts for 5 rounds --- */
+{topic:"Buca di Beppo", q:"Name a pasta shape", t:[
+ ["Spaghetti","Penne","Macaroni|Mac"],
+ ["Fettuccine|Fettucine","Linguine|Linguini","Rigatoni","Lasagna|Lasagne","Ravioli","Bow Tie|Bowtie|Farfalle","Angel Hair|Capellini","Ziti","Tortellini","Rotini","Shells|Conchiglie"],
+ ["Orzo","Fusilli","Gnocchi","Manicotti","Cannelloni","Elbow|Elbows","Orecchiette","Pappardelle","Tagliatelle","Bucatini","Ditalini","Cavatappi","Vermicelli","Wagon wheels|Rotelle|Ruote","Alphabet"],
+ ["Radiatori","Campanelle","Gemelli","Paccheri","Mafaldine|Mafalda","Casarecce","Cavatelli","Agnolotti","Fregola|Fregula","Stelline","Tortelloni","Spaghettini","Rigatoni"],
+ ["Strozzapreti","Trofie","Lumache","Garganelli","Pici","Mezzi Rigatoni|Mezze Rigatoni","Anelli","Calamarata","Corzetti","Lorighittas","Busiate","Sagnarelli","Cappelletti"]]},
+{topic:"Crows", q:"Name a collective noun for a group of birds (e.g. a 'murder' of crows)", t:[
+ ["A murder of crows|~murder","A flock|~flock"],
+ ["A gaggle of geese|~gaggle","A parliament of owls|~parliament","An unkindness of ravens|~unkindness","A murmuration of starlings|~murmuration","A colony of penguins|~colony"],
+ ["A conspiracy of ravens|~conspiracy","A flamboyance of flamingos|~flamboyance","A kettle of hawks|~kettle","A bevy of quail|~bevy","A covey|~covey","A skein of geese|~skein","A raft of ducks|~raft","A brood|~brood","A waddle of penguins|~waddle"],
+ ["An exaltation of larks|~exaltation","A charm of finches|~charm","A convocation of eagles|~convocation","A siege of herons|~siege","A pandemonium of parrots|~pandemonium","A wake of vultures|~wake|~committee|~venue","A tiding of magpies|~tiding","A paddling of ducks|~paddling","A host of sparrows|~host","An ostentation of peacocks|~ostentation|~muster"],
+ ["A scold of jays|~scold|~party of jays","A descent of woodpeckers|~descent","A cast of falcons|~cast","A horde of crows|~horde","A storytelling of crows|~storytelling","A chattering of choughs|~chattering","A clattering of jackdaws|~clattering","A building of rooks|~building|~parliament of rooks","A mischief of magpies|~mischief"]]},
+{topic:"Video Games", q:"Name a character, item, or place from The Legend of Zelda", t:[
+ ["Link","Zelda|Princess Zelda","Ganon|Ganondorf"],
+ ["Hyrule","Master Sword","Triforce","Navi","Epona","Rupees|Rupee","Ocarina|Ocarina of Time","Breath of the Wild|BOTW","Tears of the Kingdom|TOTK"],
+ ["Impa","Sheik","Midna","Tingle","Skull Kid","Majora's Mask|Majora","Hylian Shield","Korok|Koroks","Deku Tree|Great Deku Tree","Great Fairy|Fairy","Goron|Gorons","Zora|Zoras","Gerudo","Kakariko|Kakariko Village","Lost Woods","Death Mountain","Heart Container|Hearts","Cucco|Cuccos|Chickens","Hookshot","Wind Waker","Twilight Princess","Calamity Ganon","Bokoblin|Bokoblins","Moblin","Lynel","Guardian|Guardians"],
+ ["Lon Lon Ranch","Malon","Saria","Darunia","Ruto|Princess Ruto","Nabooru","Rauru","Fi","Ghirahim","Groose","Beedle","Purah","Mipha","Revali","Urbosa","Daruk","Sidon|Prince Sidon","Hestu","Sheikah Slate","Lake Hylia","Zelda's Lullaby","Bottle|Bottles","Boomerang","Fishing Pond"],
+ ["Kaepora Gaebora|The Owl","Vaati","Demise","Agahnim","Tetra","King of Red Lions","Happy Mask Salesman","Kafei","Anju","Dampé|Dampe","Poe|Poes","Gossip Stone|Gossip Stones","Like Like","Wallmaster","Gohma","Volvagia","Twinrova","Koume","Kotake","Yiga Clan|Yiga","Ravio","Linebeck","Tatl","Tael"]]},
+{topic:"Video Games", q:"Name one of the original 151 Pokémon", t:[
+ ["Pikachu","Charizard","Bulbasaur","Squirtle","Charmander","Mewtwo","Mew","Eevee","Jigglypuff","Snorlax"],
+ ["Gengar","Psyduck","Meowth","Gyarados","Blastoise","Venusaur","Magikarp","Ditto","Lapras","Dragonite","Onix","Geodude","Vulpix","Arcanine","Growlithe","Machamp","Alakazam","Abra","Cubone","Slowpoke","Pidgey","Rattata","Caterpie","Butterfree","Zubat","Raichu","Articuno","Zapdos","Moltres","Mr. Mime|Mr Mime","Chansey","Clefairy"],
+ ["Ekans","Arbok","Koffing","Staryu","Starmie","Poliwag","Oddish","Diglett","Magnemite","Voltorb","Ponyta","Rapidash","Scyther","Jynx","Electabuzz","Magmar","Lickitung","Kangaskhan","Tauros","Aerodactyl","Kabuto","Omanyte","Porygon","Seel","Shellder","Krabby","Horsea","Goldeen","Tentacool","Hitmonlee","Hitmonchan","Rhyhorn","Rhydon","Exeggutor","Marowak","Sandshrew","Nidoran","Ninetales","Wigglytuff","Golbat","Vaporeon","Jolteon","Flareon","Dratini","Ivysaur","Charmeleon","Wartortle","Weedle","Beedrill","Pidgeot","Mankey","Machop","Bellsprout","Gastly","Haunter","Muk","Grimer","Weezing","Hypno","Drowzee","Golem","Slowbro","Farfetch'd|Farfetchd","Doduo","Electrode","Pinsir"],
+ ["Sandslash","Nidorina","Nidoqueen","Nidorino","Nidoking","Clefable","Gloom","Vileplume","Paras","Parasect","Venonat","Venomoth","Dugtrio","Persian","Golduck","Primeape","Poliwhirl","Poliwrath","Kadabra","Machoke","Victreebel","Graveler","Magneton","Dodrio","Cloyster","Dewgong","Kingler","Seadra","Seaking","Tentacruel","Exeggcute","Tangela","Omastar","Kabutops","Dragonair","Raticate","Spearow","Fearow","Pidgeotto"],
+ ["Metapod","Kakuna","Weepinbell"]]},
+{topic:"Lady Bird", q:"Name a movie Greta Gerwig directed, wrote, or acted in (other than Lady Bird)", t:[
+ ["Barbie","Little Women"],
+ ["Frances Ha","Mistress America","20th Century Women","White Noise","Isle of Dogs"],
+ ["Greenberg","Jackie","Maggie's Plan","No Strings Attached","Arthur","To Rome with Love","Damsels in Distress","Narnia|The Magician's Nephew|Chronicles of Narnia"],
+ ["Hannah Takes the Stairs","Nights and Weekends","Baghead","The House of the Devil|House of the Devil","Lola Versus","The Dish & the Spoon|The Dish and the Spoon"],
+ ["LOL","Yeast","The Humbling"]]},
+/* Steph Curry — life */
+{topic:"Steph Curry", q:"Name a fact about Steph Curry's life (not just a stat)", t:[
+ ["Won 4 NBA titles|~4 titles|~four titles|~champion|~ring|~titles","Greatest shooter ever|~shoot|~three|~3 point|~3s|~threes|~3 pointer"],
+ ["His dad Dell Curry played in the NBA|~dell|~dad|~father","Wife Ayesha Curry|~ayesha|~wife|~married","Played college ball at Davidson|~davidson","Two-time MVP|~mvp|~2 mvp","Grew up in Charlotte, NC|~charlotte|~north carolina","Brother Seth Curry also plays in the NBA|~seth|~brother","Curry Brand with Under Armour|~under armour|~curry brand|~shoe"],
+ ["Born in Akron, Ohio — same hospital as LeBron|~akron|~ohio|~same hospital","First unanimous MVP|~unanimous","Olympic gold in Paris 2024|~olympic|~gold|~paris","Chews on his mouthguard|~mouthguard|~mouth guard","Open about his Christian faith|~christian|~faith|~jesus|~god|~philippians|~4 13|~bible|~church","The 'Night Night' celebration|~night night","Lightly recruited out of high school|~underrated|~underdog|~recruit|~skinny|~small","Has four kids|~riley|~ryan|~canon|~caius|~kids|~children"],
+ ["Real name Wardell Stephen Curry II|~wardell","Born March 14, 1988|~march 14|~1988|~pi day","Lived in Toronto as a kid|~toronto|~raptors","Won a celebrity golf tournament|~golf","Production company Unanimous Media|~unanimous media","Eat. Learn. Play. foundation|~eat learn play|~foundation","2022 Finals MVP|~finals mvp"],
+ ["Went to Charlotte Christian School|~charlotte christian","Mom Sonya played college volleyball|~sonya|~volleyball|~mom|~mother","Sister Sydel married Damion Lee|~sydel|~sister|~damion lee","Apple TV+ show 'Mr. Throwback'|~mr throwback|~throwback","Led Davidson to the Elite Eight|~elite eight|~march madness","Trainer Brandon Payne|~brandon payne|~payne"]]},
+{topic:"Steph Curry", q:"Name a person in Steph Curry's life (family, teammates, coaches)", people:true, t:[
+ ["Ayesha Curry","Dell Curry"],
+ ["Seth Curry","Klay Thompson","Draymond Green","Steve Kerr","Riley Curry"],
+ ["Sonya Curry","Sydel Curry","Damion Lee","Bob McKillop","Ryan Curry","Canon Curry","Kevin Durant","Andre Iguodala"],
+ ["Caius Curry","Bob Myers","Mark Jackson","Don Nelson","Keith Smart","Monta Ellis","Joe Lacob"],
+ ["Brandon Payne","Jeff Austin","Ron Adams","Bruce Fraser","Shaun Livingston"]]},
+
+/* LeBron James — life */
+{topic:"LeBron James", q:"Name a fact about LeBron James's life (not just a stat)", t:[
+ ["Won 4 championships|~4 champ|~four champ|~champion|~ring|~titles","From Akron, Ohio|~akron|~ohio"],
+ ["'The Decision' on TV|~decision","Played for the Miami Heat|~miami|~heat","Played for the Cavaliers|~cavs|~cavaliers|~cleveland","NBA's all-time leading scorer|~leading scorer|~scoring record|~all time scor|~scorer|~kareem","Played alongside his son Bronny|~bronny|~son","Starred in Space Jam: A New Legacy|~space jam","Went straight to the NBA from high school|~high school|~straight","Married his high school sweetheart Savannah|~savannah|~wife|~sweetheart|~married"],
+ ["Opened the I Promise School|~i promise|~school","Came back from 3–1 in the 2016 Finals|~3 1|~comeback|~2016","'The Chosen One' on a Sports Illustrated cover|~chosen one|~sports illustrated|~si cover","Went to St. Vincent–St. Mary|~st vincent|~saint vincent|~svsm","Raised by his mom Gloria|~gloria|~mom|~mother|~single","No. 1 pick in 2003|~2003|~1 pick|~first pick|~number 1|~no 1","Lifetime Nike deal|~nike","Olympic gold medals|~olympic|~gold","Taco Tuesday|~taco"],
+ ["Born December 30, 1984|~december 30|~dec 30|~1984","Part-owner of Liverpool FC|~liverpool|~fenway|~soccer","The SpringHill Company|~springhill","Early investor in Blaze Pizza|~blaze|~pizza","Acted in 'Trainwreck'|~trainwreck|~amy schumer","Played high school football|~football","'Mind the Game' podcast|~mind the game|~podcast","Co-founded Uninterrupted|~uninterrupted"],
+ ["Lived with his coach Frankie Walker's family as a kid|~frankie walker|~walker","His high school 'Fab Five' (movie: Shooting Stars)|~fab five|~shooting stars","Famously into wine|~wine","Moved a dozen times as a kid|~moved"]]},
+{topic:"LeBron James", q:"Name a person in LeBron James's life (family, friends, teammates)", people:true, t:[
+ ["Bronny James|Bronny","Savannah James"],
+ ["Gloria James","Bryce James","Zhuri James","Dwyane Wade|D-Wade","Anthony Davis|AD","Kyrie Irving"],
+ ["Maverick Carter","Rich Paul","Chris Bosh","Dru Joyce","Frankie Walker","Steve Nash","JJ Redick","Kevin Love","Pat Riley","Erik Spoelstra","Tyronn Lue|Ty Lue","Dan Gilbert"],
+ ["Sian Cotton","Willie McGee","Romeo Travis","Dru Joyce III|Little Dru","Randy Mims","Amy Schumer","Carmelo Anthony|Melo","Chris Paul|CP3"],
+ ["Keith Dambrot","Eddie Jackson","Brandon Weems","Mike Mancias"]]},
+
+/* Relativity Space */
+{topic:"Relativity Space", q:"Name a fact about the rocket company Relativity Space", t:[
+ ["3D-printed rockets|~3d|~print","It's a rocket company|~rocket|~space|~launch"],
+ ["Based in Long Beach, CA|~long beach","The Terran 1 rocket|~terran 1|~terran one|~terran","Co-founded by Tim Ellis|~tim ellis|~ellis","Eric Schmidt became CEO|~eric schmidt|~schmidt|~google"],
+ ["Terran R, its bigger reusable rocket|~terran r|~reusab","Stargate, its giant 3D printer|~stargate","Aeon engines|~aeon","Runs on methane and liquid oxygen|~methane|~methalox|~oxygen","Founded in 2015|~2015","Co-founded by Jordan Noone|~jordan noone|~noone","Terran 1 reached space in 2023|~2023|~reached space","Founders came from SpaceX and Blue Origin|~blue origin|~spacex"],
+ ["First mission was named 'GLHF'|~glhf|~good luck have fun","Engine testing at NASA Stennis, Mississippi|~stennis|~mississippi|~nasa","Launches from Cape Canaveral|~cape canaveral|~canaveral|~florida|~lc 16","Y Combinator alum|~y combinator|~yc","HQ is a former Boeing C-17 factory|~boeing|~c 17|~c17","Goal of 3D printing on Mars|~mars"],
+ ["Terran 1 was about 85% 3D printed by mass|~85","Terran 1 only flew once|~once|~one launch|~only one|~failed to reach orbit|~orbit","Jared Leto was an investor|~jared leto|~leto","Mark Cuban was an investor|~mark cuban|~cuban"]]},
+{topic:"Relativity Space", q:"Name a rocket or space launch company (or agency)", t:[
+ ["SpaceX","NASA","Blue Origin"],
+ ["Rocket Lab","Virgin Galactic","Relativity Space|Relativity","United Launch Alliance|ULA","Boeing"],
+ ["Firefly Aerospace|Firefly","Virgin Orbit","Astra","Northrop Grumman","Lockheed Martin","Arianespace|Ariane","Axiom Space|Axiom","Sierra Space|Sierra Nevada","ABL Space","Roscosmos","ESA|European Space Agency","JAXA","ISRO"],
+ ["Stoke Space|Stoke","Isar Aerospace|Isar","Rocket Factory Augsburg|RFA","Gilmour Space|Gilmour","Skyroot","Orbex","LandSpace","iSpace","Galactic Energy","CNSA","Aerojet Rocketdyne","Vast"],
+ ["Agnikul","Phantom Space","Momentus","Exos Aerospace","bluShift Aerospace|bluShift","Space Pioneer","Vaya Space","Interstellar Technologies","Gilmour","Launcher"]]},
+
+/* Amazon animation */
+{topic:"Amazon Animation", q:"Name an animated show or movie on Amazon Prime Video", t:[
+ ["Invincible","The Legend of Vox Machina|Vox Machina"],
+ ["Hazbin Hotel","Batman: Caped Crusader|Caped Crusader","Secret Level","The Mighty Nein|Mighty Nein","The Boys Presents: Diabolical|Diabolical"],
+ ["Sausage Party: Foodtopia|Foodtopia","Undone","Fairfax","Bat-Fam|Batfam","Pete the Cat"],
+ ["Tumble Leaf","If You Give a Mouse a Cookie","Bug Diaries","Do, Re & Mi|Do Re Mi","Lost in Oz","Wishenpoof"],
+ ["Creative Galaxy","The Stinky & Dirty Show|Stinky and Dirty","Little Big Awesome","Costume Quest","Niko and the Sword of Light","Danger & Eggs|Danger and Eggs"]]},
+{topic:"Amazon Animation", q:"Name a character or voice actor from Invincible", people:true, t:[
+ ["Mark Grayson|Invincible|Mark","Omni-Man|Nolan Grayson|Nolan|Omniman"],
+ ["Atom Eve|Eve","Debbie Grayson|Debbie","Allen the Alien|Allen","Cecil Stedman|Cecil","Steven Yeun","J.K. Simmons|JK Simmons","Sandra Oh"],
+ ["Robot|Rudy","Monster Girl","Rex Splode|Rex","Dupli-Kate|Duplikate","Battle Beast","Thragg","Angstrom Levy|Angstrom","Conquest","Oliver Grayson|Oliver|Kid Omni-Man","Gillian Jacobs","Zazie Beetz","Walton Goggins","Seth Rogen","Mark Hamill","Art Rosenbaum|Art"],
+ ["Titan","The Immortal|Immortal","War Woman","Darkwing","Red Rush","Aquarus","Green Ghost","Martian Man","Amber Bennett|Amber","William Clockwell|William","Shapesmith","Black Samson","Powerplex","Mauler Twins|Maulers","Donald Ferguson|Donald","Sterling K. Brown","Jason Mantzoukas","Zachary Quinto","Ross Marquand"],
+ ["Bulletproof","Shrinking Rae","Anissa","D.A. Sinclair|Sinclair","Machine Head","Damien Darkblood|Darkblood","Lucan","Robert Kirkman|Kirkman","Mahershala Ali","Clancy Brown","Kevin Michael Richardson","Khary Payton","Grey DeLisle","Chris Diamantopoulos"]]},
+
+/* Weedmaps */
+{topic:"Weedmaps", q:"Name a fact about the company Weedmaps", t:[
+ ["An app for finding dispensaries|~dispensar|~find|~locat","A cannabis marketplace|~cannabis|~marijuana|~weed|~pot|~marketplace"],
+ ["Headquartered in Irvine, CA|~irvine|~orange county|~oc","Delivery orders|~deliver","Deals and discounts|~deal|~discount|~coupon","Customer reviews|~review|~rating","Founded in 2008|~2008","Dispensary menus|~menu"],
+ ["Co-founded by Justin Hartfield|~justin hartfield|~hartfield","Publicly traded as WM Technology|~wm technology|~public|~ipo|~nasdaq|~stock|~wm tech","Went public through a SPAC|~spac|~silver spike","Green logo|~green|~logo","Strain info pages|~strain","Order ahead for pickup|~pickup|~pick up|~order ahead|~order online","A map of nearby shops|~map"],
+ ["Stock ticker MAPS|~ticker|MAPS","Museum of Weed pop-up|~museum","Business software for dispensaries|~software|~saas|~wm business|~point of sale|~pos","Listings for doctors and medical cards|~doctor|~medical","Co-founder Keith Hoerling|~keith hoerling|~hoerling"],
+ ["Co-founder Doug Francis|~doug francis|~francis","Former CEO Chris Beals|~chris beals|~beals","Once owned by General Cannabis|~general cannabis","Started as a side project|~side project"]]},
+{topic:"Weedmaps", q:"Name a company headquartered in Irvine, CA (like Weedmaps)", t:[
+ ["In-N-Out Burger|In-N-Out|In N Out","Blizzard Entertainment|Blizzard"],
+ ["Taco Bell","Weedmaps","Kia America|Kia","Mazda North America|Mazda","Edwards Lifesciences|Edwards","The Irvine Company|Irvine Company","Rivian"],
+ ["Masimo","Vizio","Linksys","CoreLogic","Ingram Micro","Skyworks Solutions|Skyworks","Alteryx","Allergan"],
+ ["Boot Barn","The Habit Burger Grill|Habit Burger|The Habit","Golden State Foods","Lantronix","Five Point Holdings|FivePoint","Gaikai"],
+ ["Paciolan","Tri Pointe Homes|Tri Pointe","Kofax","Cylance"]]},
+
+/* Roku */
+{topic:"Roku", q:"Name a Roku product or feature", t:[
+ ["Roku TV","Roku Remote|Remote|Voice Remote|Roku Voice Remote"],
+ ["Roku Streaming Stick|Streaming Stick|Stick","Roku Ultra|Ultra","Roku Express|Express","The Roku Channel|Roku Channel","Home screen"],
+ ["Roku Streambar|Streambar|Soundbar","Roku City|Screensaver","Lost remote finder|Remote finder|Find my remote","Private listening|Headphones|Headphone jack","Shortcut buttons|Netflix button|App buttons","Roku Smart Home|Smart Home|Cameras|Doorbell","Roku Pro Series|Pro Series","Roku OS"],
+ ["Roku Originals|Originals","Live TV Channel Guide|Live TV|Channel Guide","Roku mobile app|Mobile app","Roku Pay","Roku Wireless Speakers|Speakers|Wireless Speakers","Roku Search|Search","Roku Sports Channel|Sports Channel","Free movies|Free content"],
+ ["Roku DVP|Netflix Player|Roku Netflix Player","Roku 2","Roku Premiere|Premiere","Roku Smart Soundbar","Backdrops","Roku 4","Roku 3"]]},
+{topic:"Roku", q:"Name a fact about Roku the company", t:[
+ ["It's a streaming company|~stream","Makes TVs and streaming players|~tv|~device|~player|~box"],
+ ["Founded by Anthony Wood|~anthony wood|~wood","Its color is purple|~purple","Based in San Jose, CA|~san jose|~bay area|~silicon valley|~california","Free, ad-supported channels|~free|~ads|~advertis"],
+ ["'Roku' means 'six' in Japanese|~six|~japanese|~6","Started as a project inside Netflix|~netflix","Founded in 2002|~2002","Went public in 2017|~2017|~ipo|~public|~nasdaq|~stock","Bought Quibi's shows|~quibi","Licenses Roku OS to TV makers like TCL|~tcl|~hisense|~licens"],
+ ["Made 'Weird: The Al Yankovic Story'|~weird|~al yankovic|~weird al","First player came out in 2008|~2008","Anthony Wood invented an early DVR (ReplayTV)|~replaytv|~replay|~dvr","It was Wood's sixth company|~sixth"],
+ ["The Netflix effort was code-named Project Griffin|~griffin","Earlier HQ in Los Gatos and Saratoga|~los gatos|~saratoga"]]},
+
+/* Fortnite */
+{topic:"Fortnite", q:"Name a Fortnite map location (any season)", t:[
+ ["Tilted Towers|Tilted","Pleasant Park|Pleasant"],
+ ["Retail Row","Salty Springs|Salty","Loot Lake","Dusty Depot|Dusty Divot|Dusty","Greasy Grove|Greasy","Lucky Landing","Paradise Palms"],
+ ["Fatal Fields","Misty Meadows","Sweaty Sands","Holly Hedges","Slurpy Swamp","Catty Corner","Weeping Woods","Lonely Lodge","Wailing Woods","Risky Reels","Snobby Shores","Haunted Hills","Junk Junction","Shifty Shafts","Frenzy Farm|Frenzy Fields","Lazy Lake|Lazy Links|Lazy Lagoon","Moisty Mire"],
+ ["Anarchy Acres","Flush Factory","Tomato Town|Tomato Temple","Leaky Lake","Polar Peak","Happy Hamlet","Neo Tilted","Mega Mall","The Agency","Stark Industries","The Authority","Coral Castle","Logjam Lumberyard|Logjam","Steamy Stacks","Dirty Docks","Craggy Cliffs","Colossal Coliseum"],
+ ["Grand Glacier","Brutal Bastion","Mighty Monument","Fort Crumpet","Chonker's Speedway","Rebel's Roost","Sleepy Sound","Lavish Lair"]]},
+{topic:"Fortnite", q:"Name a Fortnite skin or crossover character", t:[
+ ["Jonesy","Peely","Fishstick"],
+ ["Drift","Raven","Midas","Renegade Raider","Skull Trooper","Black Knight","Meowscles","Ghoul Trooper","Cuddle Team Leader","Travis Scott","Spider-Man|Spiderman","Goku","John Wick","Marshmello","Ariana Grande","Darth Vader"],
+ ["Lynx","Ikonik","Aura","Crystal","Brite Bomber","Galaxy","The Foundation","The Visitor","Agent Jones","Eminem","Snoop Dogg","Mariah Carey","Naruto","Master Chief","Kratos","Peter Griffin","Iron Man","Deadpool","Thanos","Ninja","LeBron James|LeBron","Batman","The Mandalorian|Mandalorian"],
+ ["Aerial Assault Trooper","Recon Expert","Tomatohead","Rust Lord","Calamity","Leviathan","Omega","Carbide","Dark Voyager","Rex","Tricera Ops","Love Ranger","SpongeBob","Solid Snake","Lara Croft","Doctor Doom"],
+ ["Sparkle Specialist","Elite Agent","Rabbit Raider","Plague","Sgt. Winter","Merry Marauder","Nog Ops","Crackshot","Codename E.L.F.|Codename Elf","Red Knight","Royale Knight","Blue Squire"]]},
+{topic:"Fortnite", q:"Name a Fortnite item, emote, or game feature", t:[
+ ["Victory Royale","Battle Bus","Building|Build","The Storm|Storm"],
+ ["V-Bucks|Vbucks","Battle Pass","The Floss|Floss","Default Dance|Default","Chug Jug","Slurp Juice","Shield Potion|Shields|Big Pot","Mini Shield|Minis","Pump Shotgun|Pump","Supply Llama|Llama","Zero Build","Epic Games|Epic"],
+ ["Orange Justice","Take the L","Electro Shuffle","Fresh","Hype","Boogie Bomb","SCAR|Assault Rifle|AR","Tactical Shotgun|Tac","Rocket Launcher|RPG","Launch Pad","Glider","Pickaxe","Emotes|Emote","Save the World","Creative","Battle Royale","LEGO Fortnite|Lego","Fortnite Festival|Festival","Fortnite OG|OG","Supply Drop","Bandages|Bandage","Med Kit|Medkit"],
+ ["The Griddy|Griddy","Scenario","Ride the Pony","Laugh It Up","Infinity Blade","Drum Gun","Chug Splash","Port-a-Fort","Grappler","Bush","Rocket Racing","UEFN|Unreal Editor","Travis Scott concert|Astronomical","The Black Hole|The End","Kevin the Cube|The Cube|Kevin","Gold SCAR|Golden Scar"],
+ ["Clinger","Flint-Knock Pistol","Guided Missile","Shockwave Grenade","Impulse Grenade","Boom Box","Zapotron","Tim Sweeney"]]},
+
+/* Red Dead Redemption 2 */
+{topic:"Red Dead Redemption 2", q:"Name a character from Red Dead Redemption 2 (or the actor)", people:true, t:[
+ ["Arthur Morgan|Arthur","Dutch van der Linde|Dutch","John Marston"],
+ ["Sadie Adler|Sadie","Micah Bell|Micah","Charles Smith|Charles","Hosea Matthews|Hosea","Abigail Marston|Abigail Roberts|Abigail","Jack Marston","Javier Escuella|Javier","Bill Williamson"],
+ ["Lenny Summers|Lenny","Sean MacGuire","Kieran Duffy|Kieran","Uncle","Tilly Jackson|Tilly","Mary-Beth Gaskill|Mary-Beth|Mary Beth","Karen Jones","Susan Grimshaw|Miss Grimshaw|Grimshaw","Simon Pearson|Pearson","Leopold Strauss|Strauss","Reverend Swanson|Swanson|Orville Swanson","Molly O'Shea|Molly","Josiah Trelawny|Trelawny","Agent Milton|Andrew Milton|Milton","Colm O'Driscoll|Colm","Eagle Flies","Rains Fall"],
+ ["Leviticus Cornwall|Cornwall","Angelo Bronte|Bronte","Mary Linton","Sister Calderón|Sister Calderon","Edgar Ross|Agent Ross","Hamish Sinclair|Hamish","Guido Martelli","Albert Mason","Charlotte Balfour","Thomas Downes|Downes","The Strange Man|Strange Man","Gavin","Francis Sinclair","Algernon Wasp","Roger Clark"],
+ ["Charles Chatenay|Chatenay","Edith Downes","Archie Downes","Jimmy Brooks","Benjamin Byron Davis","Rob Wiethoff","Alex McKenna","Peter Blomquist","Noshir Dalal"]]},
+{topic:"Red Dead Redemption 2", q:"Name a place in Red Dead Redemption 2", t:[
+ ["Saint Denis|St. Denis|Saint-Denis|St Denis","Valentine","Blackwater"],
+ ["Strawberry","Rhodes","Annesburg","Armadillo","Tumbleweed","Van Horn","Guarma","Horseshoe Overlook"],
+ ["Colter","Clemens Point","Shady Belle","Beaver Hollow","Lemoyne","New Hanover","West Elizabeth","New Austin","Ambarino","Emerald Ranch","Flatneck Station","Mount Hagen","Big Valley","Bayou Nwa","Heartland Oil Fields|Heartlands","Lagras","Riggs Station","Beecher's Hope|Beechers Hope","Fort Wallace","Sisika Penitentiary|Sisika"],
+ ["Wapiti|Wapiti Reservation","Butcher Creek","Braithwaite Manor|Braithwaite","Caliga Hall|Caliga","Lakay","Thieves Landing","Manzanita Post","Lake Owanjila|Owanjila","Flat Iron Lake","Lannahechee River","Kamassa River","Dakota River","Bluewater Marsh","Roanoke Ridge","The Grizzlies|Grizzlies","Cholla Springs","Rio Bravo"],
+ ["Hennigan's Stead","Gaptooth Ridge","Lake Isabella","Brandywine Drop","Elysian Pool","O'Creagh's Run","Moonstone Pond","Doverhill","MacFarlane's Ranch","Pacific Union Railroad Camp"]]},
+{topic:"Red Dead Redemption 2", q:"Name something from Red Dead Redemption 2 (items, gameplay, story)", t:[
+ ["Horses|Horse","Dead Eye"],
+ ["Honor system|Honor","The camp|Camp|Gang camp","Legendary animals","Tuberculosis|TB","Bounty hunting|Bounty|Bounties","Hunting","Fishing","Van der Linde gang|The gang","Rockstar Games|Rockstar","Cowboys|Outlaws|Wild West"],
+ ["Satchel","Arthur's journal|Journal","Arthur's hat|Hat","Baths|Bathing","Poker","Five Finger Fillet","Dominoes","Horse bonding","Train robbery|Robbing trains","The Pinkertons|Pinkertons|Pinkerton","Tahiti|I have a plan|We need money","Red Dead Online","1899","White Arabian","Gun cleaning|Gun oil"],
+ ["Legendary bear|Bharati","Legendary buck","The Count","Boadicea","Cigarette cards","Dinosaur bones","Rock carvings","Dreamcatchers","Chain gang","Moonshine","Treasure maps","Gold bars","Mango plantation|Mangoes"],
+ ["Vampire in Saint Denis|Vampire","Bigfoot|Sasquatch","UFO","Ghost train","Night Folk","Lemoyne Raiders","Murfree Brood","Skinner Brothers","Del Lobos","Laramie gang"]]},
+/* Ryan Huffman — video producer */
+{topic:"Ryan Huffman", q:"Name a fact about video producer Ryan Huffman", t:[
+ ["He's a producer|~produc","He makes music videos and commercials|~music video|~commercial|~video|~film"],
+ ["Founded Huffman Creative|~huffman creative|~production company|~his own company|~own company|~founder|~founded|~owns","Based in Los Angeles|~los angeles|LA|L.A.|~lives in la","Went to Chapman University|~chapman|~dodge","Grew up in San Diego|~san diego"],
+ ["Has a twin brother|~twin","Produced Megan Thee Stallion's 'Her'|~megan","Got an MTV VMA nomination|~vma|~mtv","Worked at Revolt TV|~revolt","Made short films as a kid|~short film|~kid|~childhood|~teen"],
+ ["2 Chainz & Ariana Grande's 'Rule the World'|~2 chainz|~two chainz|~ariana|~rule the world","Nat Geo's 'Showdown of the Unbeatables'|~national geographic|~nat geo|~showdown","Clients like Nike, Adidas and Google|~nike|~adidas|~google|~coca cola|~coke|~microsoft|~meta|~amazon|~brands","Clio and Telly nominations|~clio|~telly|~ukmva|~award"],
+ ["Chapman class of 2013|~2013","50+ projects in his company's first year|~50","Co-led a Chapman panel on documentaries|~panel|~documentar","Wrote and produced 'Revolt Live' episodes|~revolt live|~writer|~wrote"]]},
+/* LA Metro */
+{topic:"LA Metro", q:"Name an LA Metro rail line, busway, or station", t:[
+ ["Union Station","Red Line|B Line","Expo Line|E Line"],
+ ["Blue Line|A Line","Gold Line|L Line","Purple Line|D Line","Green Line|C Line","Orange Line|G Line","Hollywood/Highland|Hollywood and Highland","7th St/Metro Center|7th Street Metro Center|Metro Center|7th and Metro","North Hollywood|NoHo","Universal City/Studio City|Universal City|Universal","Downtown Santa Monica|Santa Monica"],
+ ["Silver Line|J Line","K Line|Crenshaw Line","Pershing Square","Hollywood/Vine|Hollywood and Vine","Little Tokyo/Arts District|Little Tokyo|Arts District","Memorial Park|Pasadena|Del Mar","Downtown Long Beach|Long Beach","Culver City","Wilshire/Vermont","Westlake/MacArthur Park|MacArthur Park","Chinatown","Expo Park/USC|USC","LAX/Metro Transit Center|LAX","Grand Av Arts/Bunker Hill|Bunker Hill|Grand Ave","Highland Park","Azusa","Norwalk","Redondo Beach","El Monte|El Monte Station","Harbor Gateway Transit Center|Harbor Gateway","Chatsworth","Warner Center"],
+ ["Willowbrook/Rosa Parks|Rosa Parks|Willowbrook","Expo/Crenshaw","Aviation/Century","Mariachi Plaza","Soto","Atlantic","103rd St/Watts Towers|Watts Towers|Watts","Wilshire/Western","Hollywood/Western","Vermont/Sunset","Vermont/Santa Monica","Civic Center/Grand Park|Civic Center","Pico","Slauson","Leimert Park","Downtown Inglewood|Inglewood","Del Amo","APU/Citrus College","Sierra Madre Villa","South Pasadena","Heritage Square","Palms","Westwood/Rancho Park","Bundy","26th St/Bergamot|Bergamot","17th St/SMC|SMC","La Cienega/Jefferson","Jefferson/USC","Vermont/Athens","El Segundo","Hawthorne/Lennox","Wilshire/Normandie","Vermont/Beverly","Indiana","East LA Civic Center","Compton","Artesia","Pacific Coast Hwy|PCH","Fairview Heights","Westchester/Veterans","Van Nuys","Reseda","Sepulveda","Balboa","Woodley","Pierce College","Canoga","Laurel Canyon","Valley College","Woodman","Tampa","Lankershim"],
+ ["Farmdale","Douglas","Mariposa","Maravilla","Firestone","Florence","Wardlow","Willow St","Anaheim St","5th St","1st St","Pacific Ave","Hyde Park","Martin Luther King Jr|MLK","Vernon","Washington","San Pedro St","Grand/LATTC|LATTC","Lincoln/Cypress","Fillmore","Lake","Allen","Arcadia","Monrovia","Duarte/City of Hope|Duarte","Irwindale","Lakewood Blvd","Long Beach Blvd","Crenshaw","Avalon","Harbor Freeway","Hawthorne","Manchester","Rosecrans","Slauson/Harbor Fwy","37th St/USC","Pico/Aliso","Cal State LA","Patsaouras Plaza"]]},
+{topic:"LA Metro", q:"Name a fact about LA Metro (fares, history, how it works)", t:[
+ ["TAP card|~tap","Trains and buses|~train|~bus|~subway|~rail|~light rail"],
+ ["Fare is $1.75|~1 75|~175|~fare|~1 dollar 75","Union Station is the hub|~union station|~hub","LA traffic is why people ride it|~traffic|~car","Stops at the Hollywood Walk of Fame|~walk of fame|~hollywood","Gets you to LAX|~lax|~airport","Dodger Stadium Express bus|~dodger","Metro Bike Share|~bike","Lines are named with letters now|~letter|~renamed","The Expo Line goes to the beach in Santa Monica|~santa monica|~beach"],
+ ["Blue Line opened in 1990|~1990","Red Line subway opened in 1993|~1993","Regional Connector opened in 2023|~regional connector|~connector","Measure M and Measure R sales taxes|~measure|~sales tax|~tax","Expanding for the 2028 Olympics|~olympic|~2028","Metro Micro on-demand rides|~micro|~on demand","Buses on freeway busways (J and G Lines)|~freeway|~busway","Purple Line extension to Westwood|~westwood|~extension|~ucla|~beverly hills","Art in the stations|~art|~mural","Free rides for students (GoPass)|~gopass|~student|~free"],
+ ["Film-reel ceiling at Hollywood/Highland|~film reel|~ceiling","Sepulveda Pass transit project|~sepulveda","LIFE program for low-income riders|~life program|~low income","Metro Ambassadors|~ambassador","Successor to the old Pacific Electric Red Cars|~red car|~pacific electric|~streetcar|~trolley","Expo Line follows an old Red Car route|~old route","Busy at rush hour|~rush"],
+ ["Union Station opened in 1939|~1939","Angels Flight is next to a Metro stop|~angels flight","CEO Stephanie Wiggins|~stephanie wiggins|~wiggins","Run by a board including county supervisors|~board|~supervisor"]]},
+
+/* Dog eye infections */
+{topic:"Dog Eye Infections", q:"Name an eye infection or eye problem dogs can get", t:[
+ ["Pink eye|Conjunctivitis|Eye infection"],
+ ["Cherry eye","Corneal ulcer|Eye ulcer|Ulcer|Scratched cornea|Scratched eye","Dry eye","Cataracts|Cataract","Glaucoma"],
+ ["Keratitis","Uveitis","Blepharitis|Eyelid infection|Eyelid inflammation","Entropion","Ectropion","KCS|Keratoconjunctivitis sicca","Stye|Styes","Tear duct infection|Blocked tear duct","Epiphora|Excessive tearing|Tear stains"],
+ ["Pannus|Chronic superficial keratitis","Distichiasis","Dacryocystitis","Chalazion","Progressive retinal atrophy|PRA","Retinal detachment","Lens luxation","Hordeolum","Corneal dystrophy","Nuclear sclerosis"],
+ ["Orbital cellulitis","Retrobulbar abscess|Eye abscess","Canine distemper|Distemper","Blastomycosis","Ehrlichiosis","Pseudomonas","Canine herpesvirus","Horner's syndrome|Horner syndrome","Collie eye anomaly","Leptospirosis"]]},
+{topic:"Dog Eye Infections", q:"Name a sign your dog might have an eye infection", t:[
+ ["Red eyes|~red","Eye discharge|~discharge|~goop|~gunk|~crust|~booger|~mucus|~pus"],
+ ["Squinting|~squint","Swollen eye|~swell|~swollen|~puffy","Watery eyes|~water|~tear","Pawing at the eye|~paw|~scratch|~rub","Itchy eyes|~itch"],
+ ["Yellow or green discharge|~green|~yellow","Cloudy eye|~cloud|~hazy|~milky","Keeping the eye shut|~closed|~shut|~won t open","Rubbing face on the floor|~rubbing face|~carpet|~floor","Blinking a lot|~blink"],
+ ["Sensitive to light|~light|~photophobia","Third eyelid showing|~third eyelid","Bloodshot eyes|~bloodshot","A bad smell|~smell|~odor|~stink","Low energy|~letharg|~tired|~energy"],
+ ["Uneven pupils|~pupil|~anisocoria","Bulging eye|~bulg","Pain when chewing|~chew|~mouth","Won't let you touch its head|~head shy|~touch","Bumping into things|~bump"]]},
+{topic:"Dog Eye Infections", q:"Name a dog breed that's prone to eye problems", t:[
+ ["Pug","Shih Tzu","French Bulldog|Frenchie"],
+ ["English Bulldog|Bulldog","Boston Terrier","Pekingese","Cocker Spaniel","Cavalier King Charles Spaniel|Cavalier|King Charles","Boxer","Basset Hound","Beagle","Poodle","Golden Retriever","Labrador Retriever|Labrador|Lab"],
+ ["Lhasa Apso","Shar-Pei|Shar Pei","Bloodhound","Siberian Husky|Husky","German Shepherd","Collie","Chow Chow","Saint Bernard|St Bernard","Yorkshire Terrier|Yorkie","Maltese","Chihuahua","Bichon Frise|Bichon","Mastiff"],
+ ["Great Dane","Miniature Schnauzer|Schnauzer","Dachshund","Akita","Border Collie","Australian Shepherd|Aussie","Shetland Sheepdog|Sheltie","Brussels Griffon","Japanese Chin","Neapolitan Mastiff","Newfoundland","Springer Spaniel"],
+ ["Belgian Tervuren","Sealyham Terrier","Tibetan Terrier","Jack Russell Terrier|Jack Russell","Chinese Crested","Samoyed","Weimaraner","Bullmastiff","Dogue de Bordeaux"]]},
+
+/* ROG Ally */
+{topic:"ROG Ally", q:"Name a fact or feature of the ASUS ROG Ally handheld", t:[
+ ["It's a handheld gaming PC|~handheld|~portable|~gaming pc|~pc|~gaming","Made by ASUS|~asus"],
+ ["Runs Windows 11|~windows","A Steam Deck rival|~steam deck|~rival|~competitor","ROG stands for Republic of Gamers|~republic of gamers|~republic","Xbox versions: ROG Xbox Ally|~xbox","The ROG Ally X|~ally x","Plays your Steam games|~steam","7-inch screen|~7 inch|~seven inch|~7"],
+ ["AMD Ryzen Z1 Extreme chip|~amd|~ryzen|~z1|~z2","120Hz display|~120|~refresh","1080p screen|~1080|~full hd","Armoury Crate software|~armoury|~armory|~crate","Came out in 2023|~2023","Game Pass support|~game pass","Fingerprint reader in the power button|~fingerprint","Back paddle buttons|~back button|~paddle","microSD card slot|~micro sd|~microsd|~sd card|~sd","Short battery life|~battery"],
+ ["XG Mobile external GPU port|~xg mobile|~egpu|~external gpu|~graphics card","microSD reader overheating problem|~overheat|~heat|~sd reader","Ally X has 24GB of RAM|~24|~ram|~memory","Ally X has an 80Wh battery|~80","Command Center menu|~command center","FreeSync Premium|~freesync","Dolby Atmos speakers|~dolby|~atmos|~speaker","Ryzen Z2 chips in the 2025 Xbox Ally|~2025|~z2 extreme","ASUS is from Taiwan|~taiwan"],
+ ["Weighs about 1.3 pounds|~600|~1 3|~weight|~weighs|~pound","You can install Linux (Bazzite)|~linux|~bazzite|~steamos","Launched at $699|~699|~599|~price|~cost","Teased on April Fools' Day|~april fool"]]},
+{topic:"ROG Ally", q:"Name a handheld gaming device (any era)", t:[
+ ["Nintendo Switch|Switch","Steam Deck","Game Boy|Gameboy"],
+ ["ROG Ally|Rog Ally|Rogue Ally|ASUS ROG Ally|Ally","PSP|PlayStation Portable","Nintendo DS|DS","3DS|Nintendo 3DS","Switch 2|Nintendo Switch 2","Game Boy Advance|GBA","Switch Lite|Nintendo Switch Lite"],
+ ["Lenovo Legion Go|Legion Go","MSI Claw","PS Vita|PlayStation Vita|Vita","Game Gear|Sega Game Gear","Game Boy Color|GBC","PlayStation Portal","ROG Xbox Ally|Xbox Ally","ROG Ally X|Ally X","Analogue Pocket","Atari Lynx|Lynx","Game & Watch|Game and Watch"],
+ ["Ayaneo","GPD Win","Retroid Pocket","Anbernic","Playdate","Logitech G Cloud","Razer Edge","N-Gage","Neo Geo Pocket","WonderSwan","Zotac Zone","OneXPlayer","Virtual Boy","Game Boy Micro","Nintendo DSi|DSi"],
+ ["Tiger game.com|Game.com","Sega Nomad|Nomad","TurboExpress","Microvision","Gizmondo","Nokia N-Gage QD","Tapwave Zodiac","Pokémon Mini|Pokemon Mini","Evercade","Miyoo Mini","Pocket Sprite"]]},
+/* Hasbulla */
+{topic:"Hasbulla", q:"Name a fact about Hasbulla", t:[
+ ["Nicknamed 'Mini Khabib'|~mini khabib|~khabib","Famous on TikTok and Instagram|~tiktok|~instagram|~social media|~internet|~viral|~meme|~famous"],
+ ["From Dagestan, Russia|~dagestan|~russia","His feud with Abdu Rozik|~abdu|~rozik|~feud|~rival","Signed a deal with the UFC|~ufc|~contract|~dana white","Muslim|~muslim|~islam|~quran","Short stature (a form of dwarfism)|~dwarf|~short|~small|~tiny|~little"],
+ ["From Makhachkala|~makhachkala","Close with Islam Makhachev|~makhachev|~islam makhachev","Scuffle with Abdu Rozik at UFC 267 in Abu Dhabi|~267|~scuffle|~abu dhabi","The viral fake press conference|~press conference|~face off","Born in 2002|~2002","Called out Conor McGregor|~conor|~mcgregor","Was in Islam Makhachev's corner at UFC 280|~280|~corner"],
+ ["His dad is a plumber|~plumber|~dad|~father","Also feuded with Uzbek influencer Erali|~erali","Started posting videos in 2020|~2020","Has said he wants to study law and religion|~law|~lawyer|~theolog|~scholar|~study"],
+ ["Last name is Magomedov|~magomedov","Said he wants to be Dagestan's Minister of Internal Affairs|~minister|~internal affairs|~politic"]]},
+{topic:"Hasbulla", q:"Name a famous fighter from Dagestan (Hasbulla's home)", people:true, t:[
+ ["Khabib Nurmagomedov|Khabib"],
+ ["Islam Makhachev"],
+ ["Umar Nurmagomedov","Usman Nurmagomedov","Zabit Magomedsharipov|Zabit","Magomed Ankalaev","Abdulmanap Nurmagomedov"],
+ ["Shara Magomedov|Shara Bullet","Muslim Salikhov","Abubakar Nurmagomedov","Rustam Khabilov","Ali Bagautinov","Abdulrashid Sadulaev"],
+ ["Gadzhimurad Antigulov","Buvaisar Saitiev","Said Nurmagomedov","Tagir Ulanbekov"]]},
+
+/* Hasan Piker */
+{topic:"Hasan Piker", q:"Name a fact about streamer Hasan Piker", t:[
+ ["He's a Twitch streamer|~twitch|~stream","Political commentator|~politic|~leftist|~left wing|~progressive|~socialist|~commentator"],
+ ["Goes by HasanAbi|~hasanabi|~abi","Worked at The Young Turks|~young turks|~tyt","His uncle is Cenk Uygur|~cenk|~uygur|~uncle","Turkish-American|~turk","Reacts to videos and news|~react","Streams for many hours a day|~hours|~every day|~long stream"],
+ ["Grew up in Istanbul|~istanbul","Born in New Jersey|~new jersey|~nj|~new brunswick","Went to Rutgers|~rutgers","AOC's Among Us stream|~aoc|~among us|~ocasio","The Fear& podcast (formerly Fear&Malding)|~fear|~malding|~podcast","His dog Kaya|~kaya|~dog","Wrote for HuffPost|~huffpost|~huffington","Lives in Los Angeles|~los angeles|~west hollywood|~hollywood|LA","Has been temporarily banned from Twitch|~ban|~suspend"],
+ ["'Abi' means 'big brother' in Turkish|~big brother|~older brother","Hosted TYT's 'The Breakdown'|~breakdown","Hosted TYT's 'Agitprop'|~agitprop","Started streaming in 2018|~2018","Left TYT in 2020|~2020|~left tyt","Most-watched Twitch streamer during 2020 election week|~election|~most watched","Also went to the University of Miami|~miami","Co-hosts with Will Neff|~will neff|~neff","Started out in TYT's ad sales department|~ad sales|~sales"],
+ ["Born July 25, 1991|~july 25|~1991","QTCinderella and AustinShow joined his podcast|~qtcinderella|~qt|~austinshow","Hit 231,000 live viewers on Jan. 6, 2021|~231|~january 6|~jan 6","Middle name is Doğan|~dogan"]]},
+{topic:"Hasan Piker", q:"Name a streamer, creator, or politician Hasan Piker has streamed or worked with", people:true, t:[
+ ["Cenk Uygur","Alexandria Ocasio-Cortez|AOC"],
+ ["Pokimane","Will Neff","QTCinderella","Ludwig","xQc","Ana Kasparian"],
+ ["AustinShow","Mizkif","Valkyrae","Sykkuno","Disguised Toast","Corpse Husband","Ilhan Omar","Asmongold","Destiny"],
+ ["Emiru","Myth","Dr Lupo|DrLupo","John Iadarola"],
+ ["Andrew Callaghan","Kyle Kulinski"]]},
+/* Fraternities (kept easy: general frat answers count too) */
+{topic:"Beta Theta Pi", q:"Name anything about the fraternity Beta Theta Pi", t:[
+ ["Brotherhood|~brother|~bros|~friendship|~friends","Greek letters|~letter|~greek","Chapters at lots of colleges|~chapter|~college|~university|~campus|~school|~fraternity|~frat","Nicknamed 'Beta'|~beta"],
+ ["A frat house|~house","Rush / recruitment|~rush|~recruit|~bid","Pledging|~pledge","Parties|~party|~parties|~partying","Philanthropy and service|~philanthrop|~charity|~service|~volunteer|~fundrais","Founded in the 1800s|~1800|~19th century|~old","Founded at Miami University|~miami","Founded in 1839|~1839","Pink and blue colors|~pink|~blue","Dragon symbol|~dragon","'Men of Principle'|~men of principle|~principle","Rose is its flower|~rose|~flower"],
+ ["Part of the Miami Triad|~triad|~sigma chi|~phi delt|~phi delta theta","Oxford, Ohio|~oxford|~ohio","Star and diamond symbols|~star|~diamond","Lots of Fortune 500 CEOs|~ceo|~fortune 500","Sam Walton was a Beta|~sam walton|~walmart","Nike co-founder Bill Bowerman was a Beta|~bowerman|~nike","John Wooden was a Beta|~wooden"],
+ ["Founded August 8|~august 8|~aug 8|~8 8","Eight founders|~eight|~8 founders","First fraternity west of the Allegheny Mountains|~allegheny|~alleghenies|~west","First fraternity to publish its constitution|~constitution|~1879","More Supreme Court justices than any fraternity|~supreme court|~justice","Magazine called The Beta Theta Pi|~magazine"],
+ ["Founder John Reily Knox|~john reily knox|~knox","First meeting at 9 p.m.|~9 pm|~nine","'The Bridge Builder' poem|~bridge builder","Over 220,000 lifetime members|~220|~223","Most Rhodes Scholars of any fraternity|~rhodes"]]},
+{topic:"Delta Tau Delta", q:"Name anything about the fraternity Delta Tau Delta", t:[
+ ["Brotherhood|~brother|~bros|~friendship|~friends","Greek letters|~letter|~greek","Chapters at lots of colleges|~chapter|~college|~university|~campus|~school|~fraternity|~frat","Nicknamed 'Delts'|~delt|~dtd"],
+ ["A frat house|~house","Rush / recruitment|~rush|~recruit|~bid","Pledging|~pledge","Parties|~party|~parties|~partying","Philanthropy and service|~philanthrop|~charity|~service|~volunteer|~fundrais","Founded in the 1800s|~1800|~19th century|~old","Founded at Bethany College|~bethany","Founded in 1858|~1858","Purple, white and gold colors|~purple|~gold|~white","Will Ferrell is a Delt|~will ferrell|~ferrell","Matthew McConaughey is a Delt|~mcconaughey|~matthew","Purple iris flower|~iris|~flower"],
+ ["Founded in (West) Virginia|~west virginia|~virginia","'Committed to Lives of Excellence'|~excellence|~committed","Philanthropy partner JDRF (diabetes research)|~jdrf|~diabetes","Drew Carey is a Delt|~drew carey|~carey","Paul Ryan is a Delt|~paul ryan|~ryan"],
+ ["Motto: 'Labor for the Beautiful and the Good'|~labor|~beautiful","Merged with the Rainbow Fraternity in 1886|~rainbow fraternity|~merged|~1886","Magazine is called The Rainbow|~rainbow","Crescent symbol|~crescent","Truth, Courage, Faith, Power|~truth|~courage|~faith|~power","Eight founders|~eight|~8 founders"],
+ ["Henry King Bell saved it during the Civil War|~henry king bell|~civil war","Alpha chapter is at Allegheny College|~allegheny","Founders House is on the National Register|~national register|~founders house","Some early records say 1861|~1861"]]},
+{topic:"Phi Gamma Delta", q:"Name anything about the fraternity Phi Gamma Delta (FIJI)", t:[
+ ["Brotherhood|~brother|~bros|~friendship|~friends","Greek letters|~letter|~greek","Chapters at lots of colleges|~chapter|~college|~university|~campus|~school|~fraternity|~frat","Nicknamed FIJI|~fiji|~phi gam"],
+ ["A frat house|~house","Rush / recruitment|~rush|~recruit|~bid","Pledging|~pledge","Parties|~party|~parties|~partying","Philanthropy and service|~philanthrop|~charity|~service|~volunteer|~fundrais","Founded in the 1800s|~1800|~19th century|~old","Founded at Jefferson College|~jefferson","Founded in 1848|~1848","Royal purple color|~purple","Founded in Pennsylvania|~pennsylvania|~canonsburg","Fiji Islander parties|~islander|~island|~luau|~hawaiian"],
+ ["Founded by the 'Immortal Six'|~immortal six|~six|~6 founders","Purple clematis flower|~clematis|~flower","Motto: 'Friendship, the sweetest influence'|~friendship|~sweetest","HQ in Lexington, Kentucky|~lexington|~kentucky","Mike Pence is a FIJI|~pence","Jack Nicklaus is a FIJI|~nicklaus","Johnny Carson was a FIJI|~carson","Calvin Coolidge was a FIJI|~coolidge"],
+ ["Half of the 'Jefferson Duo' with Phi Kappa Psi|~jefferson duo|~phi kappa psi|~phi psi|~duo","Started as 'The Delta Association'|~delta association","'Not for College Days Alone'|~not for college days|~college days","White star on its flag|~white star|~star","Pig dinner tradition|~pig","'Press On!'|~perge|~press on"],
+ ["Founded in a dorm room called 'Fort Armstrong'|~fort armstrong","Over 211,000 members|~211","Uses 'FIJI' because the Greek letters have limited use|~limit"]]},
+{topic:"Fraternities", q:"Name a college fraternity (any Greek-letter one)", t:[
+ ["Sigma Chi","Sigma Alpha Epsilon|SAE","Pi Kappa Alpha|Pike","Kappa Sigma","Beta Theta Pi|Beta","Delta Tau Delta|Delts|Delt","Phi Gamma Delta|FIJI|Phi Gam","Alpha Phi Alpha"],
+ ["Sigma Nu","Phi Delta Theta|Phi Delt","Sigma Phi Epsilon|SigEp|Sig Ep","Lambda Chi Alpha|Lambda Chi","Alpha Tau Omega|ATO","Tau Kappa Epsilon|TKE|Teke","Delta Kappa Epsilon|DKE|Deke","Kappa Alpha Psi","Omega Psi Phi|Ques","Theta Chi","Kappa Alpha Order|KA","Alpha Epsilon Pi|AEPi","Phi Kappa Psi|Phi Psi","Delta Upsilon|DU","Pi Kappa Phi|Pi Kapp"],
+ ["Zeta Beta Tau|ZBT","Chi Phi","Psi Upsilon|Psi U","Sigma Pi","Phi Beta Sigma","Iota Phi Theta","Delta Chi","Alpha Sigma Phi","Phi Kappa Sigma","Delta Sigma Phi","Phi Sigma Kappa","Sigma Alpha Mu|Sammy","Theta Xi","Alpha Delta Phi","Phi Kappa Tau","Kappa Delta Rho","Sigma Phi"],
+ ["Zeta Psi","Chi Psi","Delta Phi","Acacia","Triangle","FarmHouse","Theta Delta Chi","Beta Upsilon Chi|BYX","Alpha Gamma Rho|AGR","Phi Kappa Theta","Alpha Chi Rho","Tau Delta Phi","Pi Lambda Phi","Alpha Kappa Lambda"],
+ ["Delta Tau Chi (Animal House)|Delta Tau Chi|Animal House","Lambda Lambda Lambda (Revenge of the Nerds)|Lambda Lambda Lambda|Tri-Lambs|Tri Lambda","Phi Mu Delta","Kappa Delta Phi","Sigma Tau Gamma"]]},
+{topic:"Fraternities", q:"Name a famous member of Beta Theta Pi, Delta Tau Delta, or Phi Gamma Delta", people:true, t:[
+ ["Will Ferrell","Matthew McConaughey","Mike Pence"],
+ ["Sam Walton","Jack Nicklaus","Johnny Carson","Calvin Coolidge","Drew Carey","Paul Ryan","John Wooden"],
+ ["Bill Bowerman","Matthew Fox","Scott Bakula","Morgan Spurlock","Dean Smith","Richard Lugar","Bill Nelson","Tom Carper","E. B. White|EB White"],
+ ["Byron White","Harold Sweatt","Zebulon Vance","John Cappelletti"],
+ ["John Reily Knox","Henry King Bell","Naaman Fletcher","John Templeton McCarty"]]},
+
+/* Dodge College */
+{topic:"Dodge College", q:"Name a fact about Chapman University's Dodge College (film school)", t:[
+ ["It's a film school|~film|~movie|~cinema","Part of Chapman University|~chapman"],
+ ["In Orange, California|~orange|~california|~oc","Marion Knott Studios|~marion knott|~knott","The Duffer Brothers went there (Stranger Things)|~duffer|~stranger things","Ranked a top-5 film school|~rank|~top|~best"],
+ ["Named for Lawrence and Kristina Dodge|~lawrence|~kristina|~larry dodge|~donor","Folino Theater|~folino","Ryan Huffman went there|~ryan|~huffman","Justin Simien went there (Dear White People)|~simien|~dear white people","Parker Finn went there (Smile)|~parker finn|~smile","Open 24/7 to students|~24 7|~24 hours|~all night","Sound stages|~sound stage|~soundstage|~stage","Degrees in film production, screenwriting and producing|~screenwrit|~producing|~production|~bfa|~mfa|~major"],
+ ["Started in the 1990s as the School of Film and Television|~1990|~1992|~1996|~school of film and television","Digital Media Arts Center for animation and VFX|~digital media arts|~dmac|~animation|~vfx|~visual effects","Chapman Studios West|~studios west","LED-wall virtual production stage|~led|~virtual production|~volume","Dhont Documentary Center|~dhont|~documentar","Arnold Schwarzenegger was at the Knott Studios groundbreaking|~schwarzenegger|~arnold","Student Academy Award wins|~student academy|~academy award|~oscar"],
+ ["Sodaro-Pankey Undergraduate School|~sodaro|~pankey","Removed 'Birth of a Nation' posters in 2019|~birth of a nation|~poster","Former dean Bob Bassett|~bob bassett|~bassett","Donor Paul Folino|~paul folino","Hosted the Busan West Film Festival|~busan"]]},
+{topic:"Dodge College", q:"Name a well-known film school (like Dodge College)", t:[
+ ["USC|University of Southern California","NYU|Tisch|NYU Tisch"],
+ ["UCLA","AFI|American Film Institute","Chapman|Dodge College|Dodge","CalArts|California Institute of the Arts","Columbia"],
+ ["LMU|Loyola Marymount","Emerson","Florida State|FSU","UT Austin|University of Texas","Wesleyan","Full Sail","New York Film Academy|NYFA","SCAD|Savannah College of Art and Design","Syracuse"],
+ ["ArtCenter|Art Center College of Design","Cal State Northridge|CSUN","San Francisco State|SF State","Northwestern","Boston University|BU","Ithaca College|Ithaca","Temple","Vancouver Film School|VFS"],
+ ["La Fémis|La Femis","Beijing Film Academy","National Film and Television School|NFTS","Łódź Film School|Lodz Film School|Lodz","FAMU","Toronto Metropolitan University|Ryerson"]]},
+/* Kevin Wolf + MrBeast */
+{topic:"Kevin Wolf", q:"Name a fact about content creator Kevin Wolf", t:[
+ ["He's a content creator|~creator|~content|~youtube|~video|~film|~influencer|~social media"],
+ ["He worked with MrBeast|~mrbeast|~mr beast|~beast|~jimmy"],
+ ["He's behind Wolfbyte|~wolfbyte|~wolf byte|~byte"],
+ [],
+ []]},
+{topic:"MrBeast", q:"Name anything MrBeast-related (people, videos, companies)", t:[
+ ["MrBeast|Jimmy Donaldson|Jimmy|Mr Beast","Feastables","Beast Games"],
+ ["Chandler Hallow|Chandler","Karl Jacobs|Karl","Nolan Hansen|Nolan","MrBeast Burger|Beast Burger","Squid Game recreation|Squid Game","Team Trees","Team Seas","Beast Philanthropy","Most-subscribed YouTube channel|Most subscribers|YouTube","Giving away money|Giveaways|Money"],
+ ["Chris Tyson","Tareq Salameh|Tareq","Lunchly","Greenville, North Carolina|Greenville|North Carolina","Kevin Wolf","Last to Leave challenges|Last to leave","Beast Reacts","MrBeast Gaming|Beast Gaming","Prime Video|Amazon","Team Water"],
+ ["Viewstats","Wichita, Kansas|Wichita|Kansas","Streamy Awards|Streamys","Kids' Choice Awards|Kids Choice","Buried alive video|Buried alive","Time 100|Time magazine","Started YouTube in 2012|2012"],
+ ["MrBeast6000","Jake Franklin","$456,000 Squid Game prize|456000|456","WaterAid"]]},
+
+/* Matt Komo */
+{topic:"Matt Komo", q:"Name a fact about director and creator Matt Komo", t:[
+ ["He's a filmmaker and content creator|~creator|~content|~film|~video|~director|~youtube|~youtuber|~filmmaker","Based in Los Angeles|~los angeles|LA|~la based|~lives in la"],
+ ["Was head of social content at GoPro|~gopro|~go pro","Directs music videos|~music video","Photographer|~photo","Makes commercials for big brands|~brand|~commercial|~ads"],
+ ["Worked with Tiësto|~tiesto","Worked with The Chainsmokers|~chainsmokers","Porsche campaign for the 911 and Taycan|~porsche|~911|~taycan","DJI Osmo Action 2 commercial|~dji|~osmo","Also produces music|~produc|~music|~dj","Graphic designer|~graphic|~design","Made a short film|~short film","Has a YouTube channel|~channel"],
+ ["Went to film school|~film school","Guest on Entrepreneur's 'Leaders Create Leaders'|~leaders create leaders|~gerard adams|~entrepreneur","Guest on PolarPro's 'Golden Hour' podcast|~polarpro|~golden hour|~podcast","Collabed with Maxx Chewning|~maxx|~chewning"],
+ ["His favorite IKONICK art piece is 'Keep Going'|~ikonick|~keep going","The Porsche project was in 2021|~2021"]]}
+];
+
+
+
+/* ---------- MATCHING (forgiving autocorrect) ---------- */
+function norm(s){
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+    .replace(/&/g," and ").replace(/['’`.]/g,"").replace(/[^a-z0-9]+/g," ").trim()
+    .replace(/^(the|a|an) /,"");
+}
+function lev(a,b,max){
+  if(Math.abs(a.length-b.length)>max) return 99;
+  const m=[...Array(b.length+1).keys()];
+  for(let i=1;i<=a.length;i++){
+    let prev=m[0]; m[0]=i; let rowMin=m[0];
+    for(let j=1;j<=b.length;j++){
+      const tmp=m[j];
+      m[j]=Math.min(m[j]+1,m[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));
+      prev=tmp; if(m[j]<rowMin) rowMin=m[j];
+    }
+    if(rowMin>max) return 99;
+  }
+  return m[b.length];
+}
+const tolFor=n=>n<=3?0:n<=4?1:n<=7?2:n<=11?3:4;
+const STOP=new Set(["with","from","that","this","their","name","your","some","into","about","than","then","what"]);
+function buildIndex(p){
+  const entries=[], kws=[], seen=new Set();
+  p.t.forEach((tier,ti)=>tier.forEach(a=>{
+    const parts=a.split("|"); const display=parts[0];
+    parts.forEach(x=>{
+      if(x.startsWith("~")){kws.push({k:norm(x.slice(1)),display,tier:ti});return;}
+      const v=norm(x); if(!v||seen.has(v)) return; seen.add(v);
+      entries.push({v,c:v.replace(/ /g,""),display,tier:ti});
+    });
+  }));
+  // unique single words -> answer (e.g. "Kershaw", "Pleasant", "Stargate")
+  const words={};
+  if(!kws.length || p.people){
+    entries.forEach(e=>e.v.split(" ").forEach(w=>{
+      if(w.length<4||STOP.has(w)) return;
+      (words[w]=words[w]||new Map()).set(e.display,e);
+    }));
+  }
+  const uniq=[];
+  Object.entries(words).forEach(([w,m])=>{ if(m.size===1){const e=[...m.values()][0]; if(!seen.has(w)) uniq.push({v:w,display:e.display,tier:e.tier});} });
+  return {entries,kws,uniq};
+}
+function judge(p,input){
+  const v=norm(input); if(!v) return null;
+  const I=p._idx||(p._idx=buildIndex(p));
+  const vc=v.replace(/ /g,"");
+  const out=(e,corrected)=>({display:e.display,tier:e.tier,corrected});
+  // 1. exact
+  let e=I.entries.find(x=>x.v===v||x.c===vc);
+  if(e) return out(e,false);
+  // 2. a full answer sits inside what they typed ("the movie barbie")
+  const padded=" "+v+" ";
+  let best=null;
+  I.entries.forEach(x=>{ if(x.v.length>=3 && padded.includes(" "+x.v+" ") && (!best||x.v.length>best.v.length)) best=x; });
+  if(best) return out(best,true);
+  // 3. keyword facts ("his dad got kidnapped")
+  let kw=null; const ps=" "+v;
+  I.kws.forEach(k=>{ if(ps.includes(" "+k.k) && (!kw||k.tier>kw.tier)) kw=k; });
+  if(kw) return out(kw,false);
+  // 4. a distinctive single word ("kershaw", "stargate")
+  e=I.uniq.find(x=>x.v===v); if(e) return out(e,true);
+  // 5. start of an answer ("tagliat", "red dead onl")
+  if(v.length>=4){
+    const hits=new Map();
+    I.entries.forEach(x=>{ if(x.v.startsWith(v)||x.c.startsWith(vc)) hits.set(x.display,x); });
+    if(hits.size===1) return out([...hits.values()][0],true);
+  }
+  // 6. typos — closest spelling within tolerance
+  let bd=99; best=null;
+  I.entries.forEach(x=>{ const tl=tolFor(Math.min(vc.length,x.c.length)); const d=Math.min(lev(vc,x.c,tl),lev(v,x.v,tl)); if(d<=tl && d<bd){bd=d;best=x;} });
+  if(best) return out(best,true);
+  // 7. typo in a distinctive word ("kershw")
+  if(v.indexOf(" ")<0 && v.length>=5){
+    bd=99; best=null;
+    I.uniq.forEach(x=>{ const tl=Math.min(v.length,x.v.length)<=6?1:2; const d=lev(v,x.v,tl); if(d<=tl&&d<bd){bd=d;best=x;} });
+    if(best) return out(best,true);
+  }
+  // 8. benefit of the doubt: any real word they typed is close to a word in one answer
+  const toks=v.split(" ").filter(w=>w.length>=4&&!STOP.has(w));
+  const t0len=toks.reduce((m,t)=>Math.min(m,t.length),99);
+  if(toks.length && !I.kws.length){
+    let bestE=null,bestScore=0;
+    I.entries.forEach(x=>{
+      let sc=0;
+      x.v.split(" ").forEach(w=>{ if(w.length<4||STOP.has(w))return; const tl=Math.min(w.length,t0len)<=6?1:2; toks.forEach(t=>{ if(lev(t,w,tl)<=tl && Math.min(t.length,w.length)>=4) sc++; }); });
+      if(sc>bestScore||(sc===bestScore&&sc>0&&bestE&&x.tier<bestE.tier)){bestScore=sc;bestE=x;}
+    });
+    if(bestE) return out(bestE,true);
+  }
+  if(toks.length && I.kws.length){
+    // fact questions: a misspelled keyword ("davidsen")
+    let kh=null;
+    I.kws.forEach(k=>{ if(k.k.length<5||k.k.includes(" "))return; toks.forEach(t=>{ if(lev(t,k.k,k.k.length<=6?1:2)<=(k.k.length<=6?1:2) && (!kh||k.tier>kh.tier)) kh=k; }); });
+    if(kh) return out(kh,true);
+  }
+  return null;
+}
+
+
+
+/* ---------- DAILY ROUNDS ---------- */
+const ROUNDS=3, PER=7;
+const LAUNCH = new Date(2026,10,10); // Nov 10, 2026 = #1
+function todayKey(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function dayNum(){const d=new Date();d.setHours(0,0,0,0);return Math.round((d-LAUNCH)/864e5)+1;}
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function shuffle(arr,rand){for(let i=arr.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+/* Build the day's rounds of 7 for the day: no prompt repeats, and each round mixes as many topics as possible. Same for everyone on the same date. */
+/* Related topics count as one subject, so a round never doubles up (e.g. two video-game questions). */
+const GROUP={"Video Games":"games","Fortnite":"games","Red Dead Redemption 2":"games","ROG Ally":"games",
+  "Steph Curry":"nba","LeBron James":"nba",
+  "Beta Theta Pi":"frats","Delta Tau Delta":"frats","Phi Gamma Delta":"frats","Fraternities":"frats",
+  "Kevin Wolf":"mrbeast","MrBeast":"mrbeast"};
+const MAX_PER_DAY=2; // no subject shows up more than twice in a day
+const groupOf=t=>GROUP[t]||t;
+function buildRounds(day){
+  const rand=rng(day*7919+13);
+  let left=shuffle(P.map((_,i)=>i),rand);
+  const rounds=[], usedToday={};
+  for(let r=0;r<ROUNDS;r++){
+    const byGroup={};
+    left.forEach(i=>{const g=groupOf(P[i].topic); if((usedToday[g]||0)<MAX_PER_DAY)(byGroup[g]=byGroup[g]||[]).push(i);});
+    // favor subjects used least today, then ones with more questions left
+    const groups=shuffle(Object.keys(byGroup),rand).sort((x,y)=>((usedToday[x]||0)-(usedToday[y]||0))||(byGroup[y].length-byGroup[x].length));
+    const pick=groups.slice(0,PER).map(g=>byGroup[g][0]);
+    for(const i of left){ if(pick.length>=PER)break; if(!pick.includes(i)&&!pick.some(j=>P[j].topic===P[i].topic))pick.push(i); }
+    for(const i of left){ if(pick.length>=PER)break; if(!pick.includes(i))pick.push(i); }
+    pick.forEach(i=>{const g=groupOf(P[i].topic); usedToday[g]=(usedToday[g]||0)+1;});
+    left=left.filter(i=>!pick.includes(i));
+    rounds.push(shuffle(pick,rand));
+  }
+  return rounds;
+}
+
+
+/* ---------- SMALL HELPERS ---------- */
+const $=id=>document.getElementById(id);
+const WRAP=$("wrap");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ftText=pts=>(pts*FT_PER_PT).toLocaleString()+" ft";
+const store={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+const RM=(()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){return false;}})();
+if(RM) WRAP.classList.add("rm");
+const IN_FRAME=(()=>{try{return window.self!==window.top;}catch(e){return true;}})();
+const buzz=p=>{try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}};
+
+/* ---------- SOUND (all synthesized: chimes for feedback, caws for flavor) ---------- */
+const SFX=(()=>{
+  let ctx=null, out=null, muted=store.get("tgb-muted")===1;
+  function ac(){
+    if(!ctx){
+      const C=window.AudioContext||window.webkitAudioContext; if(!C) return null;
+      ctx=new C(); out=ctx.createGain(); out.gain.value=0.85;
+      const comp=ctx.createDynamicsCompressor(); out.connect(comp); comp.connect(ctx.destination);
+    }
+    if(ctx.state==="suspended") ctx.resume();
+    return ctx;
+  }
+  function tone(t,f,dur,vol,type,slide){
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type||"triangle"; o.frequency.setValueAtTime(f,t);
+    if(slide) o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+    g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(vol,t+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(out); o.start(t); o.stop(t+dur+0.03);
+  }
+  function bell(t,f,dur,vol){ tone(t,f,dur,vol,"triangle"); tone(t,f*2,dur*0.7,vol*0.35,"sine"); }
+  function whoosh(t,dur,vol){
+    const nb=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*dur),ctx.sampleRate), d=nb.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    const n=ctx.createBufferSource(); n.buffer=nb; const f=ctx.createBiquadFilter(); f.type="bandpass"; f.Q.value=1.2;
+    f.frequency.setValueAtTime(500,t); f.frequency.exponentialRampToValueAtTime(2600,t+dur);
+    const g=ctx.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(vol,t+dur*0.4); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    n.connect(f); f.connect(g); g.connect(out); n.start(t); n.stop(t+dur+0.03);
+  }
+  function caw(t,base,dur,vol){
+    const g=ctx.createGain(); g.gain.value=0;
+    const o1=ctx.createOscillator(), o2=ctx.createOscillator(); o1.type="sawtooth"; o2.type="square";
+    o1.frequency.setValueAtTime(base*1.25,t); o1.frequency.exponentialRampToValueAtTime(base*0.72,t+dur);
+    o2.frequency.setValueAtTime(base*1.27,t); o2.frequency.exponentialRampToValueAtTime(base*0.70,t+dur);
+    const nb=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*dur),ctx.sampleRate), d=nb.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    const n=ctx.createBufferSource(); n.buffer=nb; const ng=ctx.createGain(); ng.gain.value=0.35;
+    const rasp=ctx.createGain(); rasp.gain.value=0.6; const lfo=ctx.createOscillator(); lfo.frequency.value=55; const lg=ctx.createGain(); lg.gain.value=0.4; lfo.connect(lg); lg.connect(rasp.gain);
+    const f1=ctx.createBiquadFilter(); f1.type="bandpass"; f1.frequency.value=1150; f1.Q.value=2.5;
+    const f2=ctx.createBiquadFilter(); f2.type="bandpass"; f2.frequency.value=2300; f2.Q.value=3.5;
+    const mix=ctx.createGain(); o1.connect(mix); o2.connect(mix); n.connect(ng); ng.connect(mix);
+    mix.connect(rasp); rasp.connect(f1); rasp.connect(f2); f1.connect(g); f2.connect(g); g.connect(out);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.02); g.gain.setValueAtTime(vol,t+dur*0.55); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    [o1,o2,n,lfo].forEach(x=>{x.start(t);x.stop(t+dur+0.05);});
+  }
+  const SCALE=[523.25,659.25,783.99,1046.5,1318.51,1567.98,2093]; // C major arpeggio
+  function play(kind,arg){
+    if(muted) return; if(!ac()) return; const t=ctx.currentTime+0.01;
+    try{ switch(kind){
+      case "click": tone(t,720,0.05,0.07,"sine",900); break;
+      case "start": caw(t,620,0.24,0.32); bell(t+0.3,SCALE[0],0.18,0.16); bell(t+0.42,SCALE[2],0.25,0.16); break;
+      case "go": bell(t,SCALE[3],0.3,0.2); break;
+      case "correct": { const n=(arg||0)+2; for(let i=0;i<n;i++) bell(t+i*0.075,SCALE[i],i===n-1?0.45:0.16,0.2);
+        if(arg>=2) caw(t+n*0.075+0.08,560+arg*70,0.2,0.26); if(arg>=4) caw(t+n*0.075+0.34,900,0.22,0.26); break; }
+      case "honor": bell(t,SCALE[0],0.14,0.14); bell(t+0.09,SCALE[1],0.25,0.14); break;
+      case "miss": tone(t,220,0.16,0.2,"sine",110); tone(t,150,0.1,0.07,"square",90); break;
+      case "skip": whoosh(t,0.22,0.22); break;
+      case "tick": tone(t,arg<=1?1400:1000,0.035,0.07,"square"); break;
+      case "timeout": bell(t,SCALE[2],0.2,0.16); bell(t+0.16,SCALE[1],0.2,0.16); bell(t+0.32,SCALE[0],0.45,0.16); break;
+      case "star": bell(t,SCALE[3+(arg||0)],0.35,0.18); break;
+      case "round": [0,2,3,4].forEach((s,i)=>bell(t+i*0.11,SCALE[s],i===3?0.6:0.16,0.18)); caw(t+0.62,640,0.22,0.26); caw(t+0.9,740,0.3,0.28); break;
+      case "copy": bell(t,SCALE[4],0.1,0.12); bell(t+0.09,SCALE[5],0.2,0.12); break;
+    } }catch(e){}
+  }
+  function toggle(){ muted=!muted; store.set("tgb-muted",muted?1:0); if(!muted) play("click"); return muted; }
+  return {play,toggle,isMuted:()=>muted};
+})();
+
+/* ---------- SAVED STATE ---------- */
+const DAYKEY="tgb-"+todayKey();
+let DAY = store.get(DAYKEY) || {day:dayNum(), done:[], cur:null};   // done=[{score,results}], cur = round in progress
+if(!Array.isArray(DAY.done)) DAY={day:dayNum(),done:[],cur:null};
+const PLAN = buildRounds(dayNum());
+const totalScore=()=>DAY.done.reduce((a,r)=>a+r.score,0);
+const starsFor=score=>score>=450?3:score>=300?2:score>=150?1:0;
+function streakNow(){ const s=store.get("tgb-streak"); return s&&s.last>=dayNum()-1?s.count:0; }
+function bumpStreak(){ const d=dayNum(), s=store.get("tgb-streak")||{last:0,count:0}; if(s.last===d) return; s.count=s.last===d-1?s.count+1:1; s.last=d; store.set("tgb-streak",s); }
+
+
+/* ---------- LEADERBOARD (shared scores for the day; needs a database URL in data-lb) ---------- */
+const LB=(()=>{
+  const URL=(WRAP.dataset.lb||"").trim().replace(/\/+$/,""), on=/^https:\/\//.test(URL);
+  let pid=store.get("tgb-pid"); if(!pid){ pid=Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); store.set("tgb-pid",pid); }
+  let name=store.get("tgb-name")||"", rows=null, err=false, tab="all", editing=false, lastLoad=0, busy=false, again=false;
+  const path=()=>`${URL}/tgb/${todayKey()}`;
+  const clamp=(v,max)=>{ v=Math.round(+v); return v>=0&&v<=max?v:-1; };
+  async function post(){
+    if(!on||!name||!DAY.done.length) return;
+    const r=[]; for(let i=0;i<ROUNDS;i++) r.push(DAY.done[i]?DAY.done[i].score:-1);
+    try{ const res=await fetch(`${path()}/${pid}.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({n:name,r,t:totalScore(),u:Date.now()})}); if(!res.ok) throw 0; }catch(e){ err=true; }
+  }
+  async function load(force){
+    if(!on) return; if(busy){ if(force) again=true; return; } if(!force&&Date.now()-lastLoad<4000) return; busy=true;
+    try{
+      const res=await fetch(path()+".json",{cache:"no-store"}); if(!res.ok) throw 0;
+      const j=(await res.json())||{};
+      rows=Object.entries(j).filter(([k,v])=>v&&typeof v.n==="string"&&v.n.trim()).map(([k,v])=>{
+        const r=[]; for(let i=0;i<ROUNDS;i++) r.push(clamp(Array.isArray(v.r)?v.r[i]:-1,700));
+        return {id:k,n:v.n.trim().slice(0,16),r,t:r.reduce((a,x)=>a+(x>0?x:0),0),played:r.filter(x=>x>=0).length};
+      }).filter(x=>x.played>0);
+      err=false; lastLoad=Date.now();
+    }catch(e){ err=true; }
+    busy=false; render();
+    if(again){ again=false; load(true); }
+  }
+  function ranked(k){ // k = "all" or round index
+    if(!rows) return [];
+    const list=k==="all"?rows.map(x=>({...x,v:x.t})):rows.filter(x=>x.r[k]>=0).map(x=>({...x,v:x.r[k]}));
+    return list.sort((a,b)=>b.v-a.v||b.played-a.played||a.n.localeCompare(b.n));
+  }
+  function leader(k){ const l=ranked(k); if(!l.length) return null; const top=l.filter(x=>x.v===l[0].v); return top.length>1?"tie":top[0].n; }
+  function render(){
+    const b=$("board"); if(!on){ b.classList.add("hidden"); return; }
+    $("lbJoin").classList.toggle("hidden",!!name&&!editing);
+    const tabs=[["all","Overall"]]; for(let i=0;i<ROUNDS;i++) tabs.push([i,"Round "+(i+1)]);
+    $("lbTabs").innerHTML=tabs.map(([k,l])=>`<button type="button" data-k="${k}" class="${String(tab)===String(k)?"on":""}">${l}</button>`).join("");
+    if(err&&!rows){ $("lbWinners").textContent=""; $("lbRows").innerHTML=""; $("lbNote").textContent="Couldn't reach the leaderboard. Tap ↻ to try again."; return; }
+    if(!rows){ $("lbNote").textContent="Loading…"; return; }
+    const w=[]; for(let i=0;i<ROUNDS;i++){ const n=leader(i); if(n) w.push(`R${i+1} 👑 <b>${n==="tie"?"Tied":esc(n)}</b>`); }
+    const o=leader("all"); if(o&&rows.some(x=>x.played>=ROUNDS)) w.push(`Day 👑 <b>${o==="tie"?"Tied":esc(o)}</b>`);
+    $("lbWinners").innerHTML=w.join(" &nbsp;·&nbsp; ");
+    const list=ranked(tab); let rank=0, prev=null;
+    $("lbRows").innerHTML=list.map((x,i)=>{ if(x.v!==prev){ rank=i+1; prev=x.v; }
+      const sub=tab==="all"&&x.played<ROUNDS?`<small>${x.played} of ${ROUNDS} rounds</small>`:"";
+      return `<li class="${x.id===pid?"me":""}"><span class="rk">${rank===1?"👑":rank}</span><span class="nm">${esc(x.n)}${x.id===pid?" <small>(you)</small>":""}${sub}</span><span class="vl">${ftText(x.v)}</span></li>`; }).join("");
+    const mine=list.findIndex(x=>x.id===pid);
+    let note="";
+    if(!list.length) note=tab==="all"?"No scores yet today. Be the first!":"Nobody has finished this round yet.";
+    else if(!name) note="Add your name to get on the board.";
+    else if(mine<0&&!DAY.done.length) note=`Playing as <b style="color:var(--ink)">${esc(name)}</b>. You'll show up after your first round. `;
+    else if(name) note=`Playing as <b style="color:var(--ink)">${esc(name)}</b>. `;
+    if(name&&!editing) note+=`<button type="button" class="linkish" id="lbEdit">Change name</button>`;
+    if(err) note+=" · Couldn't refresh just now.";
+    $("lbNote").innerHTML=note;
+  }
+  function visible(v){ if(!on) return; $("board").classList.toggle("hidden",!v); if(v){ render(); load(false); } }
+  async function sync(){ await post(); await load(true); }
+  if(on){
+    $("lbJoin").addEventListener("submit",e=>{ e.preventDefault(); const v=$("lbName").value.replace(/\s+/g," ").trim().slice(0,16); if(!v) return;
+      name=v; editing=false; store.set("tgb-name",name); SFX.play("copy"); try{ $("lbName").blur(); }catch(_){} render(); sync(); });
+    $("lbTabs").addEventListener("click",e=>{ const k=e.target&&e.target.dataset&&e.target.dataset.k; if(k===undefined) return; tab=k==="all"?"all":+k; SFX.play("click"); render(); });
+    $("lbNote").addEventListener("click",e=>{ if(e.target&&e.target.id==="lbEdit"){ editing=true; $("lbName").value=name; render(); $("lbName").focus(); } });
+    $("lbRefresh").addEventListener("click",()=>{ SFX.play("click"); load(true); });
+    setInterval(()=>{ if(!$("board").classList.contains("hidden")&&!document.hidden) load(false); },20000);
+    document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&!$("board").classList.contains("hidden")) load(false); });
+  }
+  return {on,visible,sync,setTab:k=>{tab=k;},setName:v=>{name=v;}};
+})();
+
+/* ---------- SCENE ---------- */
+let S=null, timerId=null, deadline=0, lastSec=-1;
+const SECONDS=25;
+function stars(){ const sky=$("stars"); for(let i=0;i<34;i++){ const s=document.createElement("i"); s.className="star"; s.style.left=Math.random()*100+"%"; s.style.top=Math.random()*78+"%"; s.style.animationDelay=(Math.random()*3)+"s"; sky.appendChild(s); } }
+function scene(pct){
+  const lift=Math.min(pct*3,1);
+  $("crow").style.bottom=(12+lift*30)+"px";
+  $("world").style.transform=`translateY(${pct*230}px)`;
+  $("ground").style.transform=`translateY(${lift*34}px)`;
+  $("stars").style.opacity=0.4+pct*0.6;
+}
+let shownFt=0, altAnim=0;
+function countUp(el,from,to,dur,suffix,onDone){
+  if(RM||from===to||!window.requestAnimationFrame){ el.textContent=to.toLocaleString()+suffix; onDone&&onDone(); return 0; }
+  const t0=performance.now();
+  const step=now=>{ const k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,3), v=Math.round(from+(to-from)*e); el.textContent=v.toLocaleString()+suffix; if(el.id==="altitude") shownFt=v; if(k<1) altAnim=requestAnimationFrame(step); else onDone&&onDone(); };
+  return altAnim=requestAnimationFrame(step);
+}
+function setAltitude(score,instant){
+  scene(Math.min(score/700,1));
+  const target=score*FT_PER_PT, el=$("altitude");
+  cancelAnimationFrame(altAnim);
+  if(instant){ shownFt=target; el.textContent=target.toLocaleString()+" ft"; return; }
+  if(target>shownFt){ el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+  countUp(el,shownFt,target,650," ft"); if(RM) shownFt=target;
+}
+const iconFor=r=>r.tier>=0?TIERS[r.tier].icon:(r.skipped?"🙈":"🌾");
+function renderHoard(popLast){ const items=S.results.filter(r=>r.tier>=0); $("hoard").innerHTML=items.map((r,i)=>`<span class="${popLast&&i===items.length-1?"pop":""}">${TIERS[r.tier].icon}</span>`).join(""); }
+function renderPips(){ let h=""; for(let i=0;i<PER;i++){ const r=S.results[i]; h+=r?(r.tier>=0?`<i class="done" style="--c:${TIERS[r.tier].color}"></i>`:`<i class="miss"></i>`):`<i class="${i===S.i?"cur":""}"></i>`; } $("pips").innerHTML=h; }
+function crowDo(cls){ const c=$("crow"); c.classList.remove("celebrate","flinch"); void c.getBoundingClientRect(); c.classList.add(cls); }
+function floatPts(text,color){
+  const sky=$("sky"), c=$("crow"), f=document.createElement("div"); f.className="floatpts"; f.textContent=text; f.style.color=color;
+  const sr=sky.getBoundingClientRect(), cr=c.getBoundingClientRect();
+  f.style.left=(cr.left-sr.left+58)+"px"; f.style.top=Math.max(26,cr.top-sr.top-6)+"px";
+  sky.appendChild(f); setTimeout(()=>f.remove(),1200);
+}
+function feathers(n){ if(RM) return; const sky=$("sky");
+  for(let i=0;i<n;i++){ const f=document.createElement("div"); f.className="feather"; f.textContent=["🪶","✨","🪶"][i%3];
+    f.style.left=(Math.random()*95)+"%"; f.style.animationDuration=(1.4+Math.random()*1.4)+"s"; f.style.animationDelay=(Math.random()*.6)+"s";
+    f.style.setProperty("--r",(Math.random()*360-180)+"deg"); sky.appendChild(f); setTimeout(()=>f.remove(),3600); } }
+function enter(id){ const e=$(id); e.classList.remove("enter"); void e.offsetWidth; e.classList.add("enter"); }
+let curScreen="intro";
+function show(screen){ curScreen=screen; ["intro","game","summary","pboard"].forEach(s=>$(s).classList.toggle("hidden",s!==screen)); LB.visible(screen==="intro"||screen==="summary"); WRAP.classList.toggle("playing",screen==="game"); enter(screen); LB.visible(screen!=="game"); }
+function keepVisible(){ try{ const vh=window.visualViewport?visualViewport.height:innerHeight; const fb=$("form").getBoundingClientRect().bottom, top=$("sky").getBoundingClientRect().top; if(fb>vh-6||top<-40) $("sky").scrollIntoView({block:"start",behavior:RM?"auto":"smooth"}); }catch(e){} }
+
+/* ---------- INTRO ---------- */
+function renderStreak(){ const n=streakNow(), el=$("streak"); el.classList.toggle("hidden",n<1); el.textContent="🔥 "+n; el.title=n+"-day streak"; }
+function renderIntro(){
+  $("dayLabel").textContent="Today's Flight #"+dayNum();
+  $("howRounds").textContent=ROUNDS+" rounds";
+  $("legend").innerHTML=TIERS.map(t=>`<div><span>${t.icon}</span><b style="color:${t.color}">${t.pts}</b><small>${t.name}</small></div>`).join("");
+  $("legendFull").innerHTML=TIERS.map(t=>`<span>${t.icon}</span><span style="color:${t.color};font-weight:600">${t.name}</span><span class="p">${t.pts} pts</span>`).join("")
+    +`<span>🌾</span><span style="color:var(--bad);font-weight:600">Scarecrowed (no answer)</span><span class="p">0 pts</span>`;
+  const n=DAY.done.length, mid=DAY.cur&&DAY.cur.round===n+1&&DAY.cur.results.length>0&&DAY.cur.results.length<PER;
+  $("startDaily").textContent=n>=ROUNDS?"See today's results":mid?`Continue Round ${n+1}`:n>0?`Play Round ${n+1}`:"Play";
+  $("progressNote").textContent=n>=ROUNDS?`All ${ROUNDS} rounds done. New flight tomorrow.`:n>0?`${n} of ${ROUNDS} rounds done · ${ftText(totalScore())} so far`:"";
+  renderStreak();
+}
+
+/* ---------- ROUND FLOW ---------- */
+function start(){
+  const n=DAY.done.length;
+  if(n>=ROUNDS){ S={round:ROUNDS,...DAY.done[ROUNDS-1]}; showSummary(false); return; }
+  const c=DAY.cur;
+  S=(c&&c.round===n+1&&c.results.length<PER)?{round:n+1,qs:PLAN[n],i:c.results.length,results:c.results,score:c.score}:{round:n+1,qs:PLAN[n],i:0,results:[],score:0};
+  show("game"); setAltitude(S.score,true); renderHoard(false);
+  prep(); S.locked=true;
+  const sp=$("splash"), tx=$("splashText"); sp.classList.remove("hidden"); tx.textContent="Round "+S.round;
+  const again=()=>{ tx.style.animation="none"; void tx.offsetWidth; tx.style.animation=""; };
+  setTimeout(()=>{ tx.textContent="Go!"; again(); SFX.play("go"); },RM?300:750);
+  setTimeout(()=>{ sp.classList.add("hidden"); S.locked=false; beginTimer(); },RM?600:1200);
+}
+function prep(){
+  const p=P[S.qs[S.i]];
+  $("roundChip").textContent="Round "+S.round;
+  renderPips();
+  const qn=$("question"); qn.textContent=p.q; qn.classList.remove("qfade"); void qn.offsetWidth; qn.classList.add("qfade");
+  S.tries=[]; S.skipped=false; $("tryMsg").textContent="";
+  $("play").classList.remove("hidden"); $("result").classList.add("hidden");
+  const a=$("answer"); a.value=""; a.disabled=false; $("go").disabled=false; $("skip").disabled=false;
+  $("timebar").style.transform="scaleX(1)"; $("timer").className="timer"; $("secs").className="secs"; $("secs").textContent=SECONDS;
+  a.focus({preventScroll:true}); setTimeout(keepVisible,380);
+}
+function beginTimer(){ deadline=Date.now()+SECONDS*1000; lastSec=-1; clearInterval(timerId); timerId=setInterval(tick,100); tick(); }
+function ask(){ prep(); beginTimer(); }
+function tick(){
+  const left=Math.max(0,deadline-Date.now()), sec=Math.ceil(left/1000);
+  $("timebar").style.transform=`scaleX(${left/(SECONDS*1000)})`;
+  const T=$("timer"); T.classList.toggle("mid",left<12000&&left>=6000); T.classList.toggle("low",left<6000);
+  if(sec!==lastSec){ lastSec=sec; $("secs").textContent=sec; $("secs").classList.toggle("low",sec<=5); if(sec<=5&&sec>0) SFX.play("tick",sec); }
+  if(left<=0) submit(true);
+}
+function skip(){ if($("answer").disabled||S.locked) return; S.skipped=true; SFX.play("skip"); finish(P[S.qs[S.i]],"",null); }
+function honor(){ if($("answer").disabled||!S.tries.length) return; const raw=S.tries.pop(); finish(P[S.qs[S.i]],raw,{display:raw,tier:0,corrected:false,honor:true}); }
+function submit(timeout){
+  const a=$("answer"); if(a.disabled||S.locked) return;
+  const p=P[S.qs[S.i]], raw=a.value.trim(), hit=raw?judge(p,raw):null;
+  if(!hit&&!timeout){
+    if(!raw) return;
+    S.tries.push(raw); a.value=""; a.classList.remove("shake"); void a.offsetWidth; a.classList.add("shake"); a.focus({preventScroll:true});
+    $("tryMsg").innerHTML=`“${esc(raw)}” isn't on the list. Try again!<br><button type="button" class="honor" id="honorBtn">🤞 I'm sure it's right (+10)</button>`;
+    SFX.play("miss"); crowDo("flinch"); buzz(40);
+    return;
+  }
+  if(raw&&!hit) S.tries.push(raw);
+  finish(p,raw,hit);
+}
+function finish(p,raw,hit){
+  clearInterval(timerId); $("timer").classList.add("off"); $("secs").className="secs off";
+  $("answer").disabled=true; $("go").disabled=true; $("skip").disabled=true; $("tryMsg").textContent="";
+  const misses=S.tries.length;
+  S.results.push({q:p.q,skipped:!!S.skipped&&!hit,honor:!!(hit&&hit.honor),input:raw||S.tries[misses-1]||"",tier:hit?hit.tier:-1,display:hit?hit.display:"",misses});
+  if(hit) S.score+=TIERS[hit.tier].pts;
+  DAY.cur={round:S.round,results:S.results,score:S.score}; store.set(DAYKEY,DAY);
+  setAltitude(S.score); renderHoard(!!hit); renderPips();
+  const missTxt=misses?` (after ${misses} miss${misses>1?"es":""})`:"";
+  if(hit){
+    const t=TIERS[hit.tier];
+    $("tierName").innerHTML=`${t.icon} <span style="color:${t.color}">${t.name}</span>`;
+    $("pts").textContent="+"+t.pts; $("pts").style.color=t.color;
+    $("your").innerHTML=`You said: <b style="color:var(--ink)">${esc(hit.display)}</b>${missTxt}`+(hit.honor?`<div class="fix">🤞 Benefit of the doubt</div>`:hit.corrected?`<div class="fix">✨ Autocorrected from “${esc(raw)}”</div>`:"");
+    SFX.play(hit.honor?"honor":"correct",hit.tier); crowDo("celebrate"); floatPts("+"+t.pts+" "+t.icon,t.color); buzz(hit.tier>=3?[30,40,30,40,60]:25);
+    if(hit.tier>=4) feathers(12);
+  }else{
+    $("tierName").innerHTML=S.skipped?`🙈 <span style="color:var(--muted)">Skipped</span>`:`🌾 <span style="color:var(--bad)">${misses?"Scarecrowed":"Out of time"}</span>`;
+    $("pts").textContent="+0"; $("pts").style.color="var(--muted)";
+    $("your").textContent=misses?`Your guesses: ${S.tries.join(", ")}`:(S.skipped?"No worries. Here's what would have counted:":"Here's what would have counted:");
+    if(!S.skipped){ SFX.play("timeout"); crowDo("flinch"); buzz([60,40,60]); }
+  }
+  $("ladder").innerHTML=TIERS.map((t,k)=>`<div class="${hit&&k===hit.tier?"on":""}" style="--c:${t.color}" title="${t.name}">${t.icon}</div>`).join("");
+  const filled=[4,3,2,1,0].filter(k=>p.t[k]&&p.t[k].length), nm=k=>p.t[k].map(a=>a.split("|")[0]);
+  const top=nm(filled[0]).slice(0,3), nxt=filled[1]!==undefined?nm(filled[1]).slice(0,2):[];
+  $("rareList").innerHTML=`Shiniest answers: <b>${top.map(esc).join("</b>, <b>")}</b>`+(nxt.length?` · Also: ${nxt.map(esc).join(", ")}`:"");
+  $("next").textContent=S.i===PER-1?`Finish Round ${S.round}`:"Next question";
+  $("play").classList.add("hidden"); $("result").classList.remove("hidden");
+  try{ $("answer").blur(); }catch(e){}
+}
+function next(){
+  S.i++;
+  if(S.i>=PER){
+    DAY.done.push({score:S.score,results:S.results}); DAY.cur=null; store.set(DAYKEY,DAY);
+    bumpStreak();
+    if(DAY.done.length>=ROUNDS){ const b=store.get("tgb-best")||0; if(totalScore()>b) store.set("tgb-best",totalScore()); }
+    LB.setTab(DAY.done.length>=ROUNDS?"all":S.round-1);
+    showSummary(true); LB.sync();
+  } else ask();
+}
+
+/* ---------- SUMMARY ---------- */
+let cdTimer=null;
+function showSummary(fresh){
+  show("summary"); clearInterval(timerId);
+  setAltitude(S.score,!fresh); renderHoard(false); renderStreak();
+  const n=DAY.done.length, allDone=n>=ROUNDS;
+  $("sumLabel").textContent=`Round ${S.round} of ${ROUNDS} complete`;
+  const st=starsFor(S.score), spans=$("sumStars").children;
+  for(let k=0;k<3;k++){ spans[k].className=""; spans[k].style.animationDelay=""; }
+  void $("sumStars").offsetWidth;
+  for(let k=0;k<st;k++){ spans[k].style.animationDelay=(0.25+k*0.28)+"s"; spans[k].className="on"; if(fresh) setTimeout(()=>SFX.play("star",k),250+k*280); }
+  countUp($("sumAlt"),fresh?0:S.score*FT_PER_PT,S.score*FT_PER_PT,900," ft");
+  const verdict=S.score>=600?"Legendary hoarder.":S.score>=450?"A very shiny nest.":S.score>=300?"Respectable crow.":S.score>=150?"Mostly strinky coal.":"Scarecrow got you.";
+  $("sumScore").textContent=`${S.score} of 700 points · ${verdict}`;
+  $("sumList").innerHTML=S.results.map((r,i)=>{ const t=r.tier>=0?TIERS[r.tier]:null;
+    const ans=r.display?esc(r.display):(r.input?`<s>${esc(r.input)}</s>`:(r.skipped?"Skipped":"No answer"));
+    return `<li style="animation-delay:${0.1+i*0.05}s"><span class="ic">${iconFor(r)}</span><span class="tx"><span class="qq">${esc(r.q)}</span><span class="aa" style="${t?"":"color:var(--muted);font-weight:500"}">${ans}</span></span><b style="color:${t?t.color:"var(--muted)"}">${t?"+"+t.pts:"0"}</b></li>`; }).join("");
+  $("again").classList.toggle("hidden",allDone); $("again").textContent=`Play Round ${n+1}`;
+  $("copy").className=allDone?"big":"big ghost";
+  $("copy").textContent="Share results"; $("shareBox").style.display="none";
+  $("dayBox").classList.toggle("hidden",!allDone);
+  clearInterval(cdTimer);
+  if(allDone){
+    $("dayRows").innerHTML=DAY.done.map((r,i)=>`<div class="dayrow"><span>Round ${i+1} <span class="st">${"★".repeat(starsFor(r.score))}${"☆".repeat(3-starsFor(r.score))}</span></span><span>${ftText(r.score)}</span></div>`).join("");
+    $("dayTotal").textContent=ftText(totalScore());
+    const best=store.get("tgb-best")||0, sn=streakNow();
+    $("dayMeta").textContent=[best>totalScore()?`Your best day: ${ftText(best)}`:(best?"That's your best day yet!":""), sn>1?`🔥 ${sn}-day streak`:""].filter(Boolean).join(" · ");
+    const cd=()=>{ const now=new Date(), mid=new Date(now); mid.setHours(24,0,0,0); const s=Math.max(0,Math.floor((mid-now)/1000)); $("nextIn").textContent=`Next flight in ${Math.floor(s/3600)}h ${String(Math.floor(s%3600/60)).padStart(2,"0")}m ${String(s%60).padStart(2,"0")}s`; };
+    cd(); cdTimer=setInterval(cd,1000);
+  }
+  if(fresh){ SFX.play("round"); if(S.score>=300) feathers(S.score>=450?22:12); }
+}
+function shareText(){
+  const lines=DAY.done.map((r,i)=>`R${i+1} ${r.results.map(iconFor).join("")} ${ftText(r.score)}`);
+  const sn=streakNow();
+  return `That's Good Bird #${dayNum()} 🐦‍⬛${myName()?" · "+myName():""}\n${lines.join("\n")}\nTotal: ${ftText(totalScore())}`+(sn>1?` · 🔥${sn}`:"")+`\n🏆 ${codeFor(myEntry())}`;
+}
+async function share(){
+  const txt=shareText(); SFX.play("copy");
+  if(navigator.share&&!IN_FRAME){ try{ await navigator.share({text:txt}); return; }catch(e){ if(e&&e.name==="AbortError") return; } }
+  try{ await navigator.clipboard.writeText(txt); $("copy").textContent="Copied! Paste it to your friends"; }
+  catch(e){ const b=$("shareBox"); b.value=txt; b.style.display="block"; b.focus(); b.select(); $("copy").textContent="Copy the text below"; }
+}
+
+/* ---------- LEADERBOARD (scores travel as a short code inside shared results) ---------- */
+const LBKEY="tgb-lb-"+todayKey();
+const myName=()=>String(store.get("tgb-name")||"").trim();
+const b64e=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const b64d=s=>{ try{ return decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/")))); }catch(e){ return null; } };
+const sumOf=body=>{ let c=7; for(const ch of body) c=(c*31+ch.charCodeAt(0))%997; return c; };
+function myEntry(){ const r=[]; for(let i=0;i<ROUNDS;i++) r.push(DAY.done[i]?DAY.done[i].score:null); return {name:myName()||"You",r,me:true}; }
+function codeFor(e){ const body=`${dayNum()}.${b64e(e.name)}.${e.r.map(v=>v==null?"x":v).join("-")}`; return `TGB:${body}.${sumOf(body)}`; }
+function parseCodes(text){
+  const out=[], re=/TGB:(\d+)\.([A-Za-z0-9_-]+)\.([0-9x-]+)\.(\d+)/g; let m;
+  while((m=re.exec(text))){
+    if(sumOf(`${m[1]}.${m[2]}.${m[3]}`)!==+m[4]) continue;
+    const name=b64d(m[2]); if(!name) continue;
+    const r=m[3].split("-").slice(0,ROUNDS).map(v=>v==="x"?null:Math.max(0,Math.min(700,parseInt(v,10)||0)));
+    while(r.length<ROUNDS) r.push(null);
+    out.push({day:+m[1],name:name.replace(/\s+/g," ").trim().slice(0,14)||"Friend",r});
+  }
+  return out;
+}
+const friends=()=>{ const f=store.get(LBKEY); return f&&typeof f==="object"?f:{}; };
+const roundsDone=e=>e.r.filter(v=>v!=null).length;
+const totalOf=e=>e.r.reduce((a,v)=>a+(v||0),0);
+function addFriends(){
+  const found=parseCodes($("pasteIn").value), f=friends(), added=[], msg=[]; SFX.play("click");
+  if(!found.length){ $("addMsg").textContent="No score code found. Ask your friend to tap Share results and send you the whole message."; return; }
+  found.forEach(e=>{
+    if(e.day!==dayNum()){ msg.push(`${e.name}'s score is from flight #${e.day}, not today's.`); return; }
+    const k=e.name.toLowerCase();
+    if(myName()&&k===myName().toLowerCase()){ msg.push("That one is your own score."); return; }
+    if(!f[k]||roundsDone(e)>=roundsDone(f[k])){ f[k]={name:e.name,r:e.r}; added.push(e.name); }
+  });
+  store.set(LBKEY,f);
+  if(added.length){ $("pasteIn").value=""; msg.unshift(`Added ${added.join(" and ")}.`); SFX.play("copy"); }
+  $("addMsg").textContent=msg.join(" "); renderBoard();
+}
+let lbTab="all", boardFrom="intro";
+function openBoard(){ SFX.play("click"); boardFrom=curScreen==="summary"?"summary":"intro"; $("addMsg").textContent=""; show("pboard"); renderBoard(); }
+function renderBoard(){
+  $("boardLabel").textContent="Flight #"+dayNum();
+  const all=[myEntry(),...Object.entries(friends()).map(([k,e])=>({...e,k}))];
+  const val=(e,t)=>t==="all"?(roundsDone(e)?totalOf(e):null):e.r[+t];
+  const ranked=t=>all.filter(e=>val(e,t)!=null).sort((a,b)=>val(b,t)-val(a,t));
+  let w=""; for(let i=0;i<ROUNDS;i++){ const top=ranked(String(i))[0]; w+=`<div><small>Round ${i+1}</small><b>${top?"👑 "+esc(top.name):"—"}</b></div>`; }
+  const lead=ranked("all")[0], everyoneDone=all.every(e=>roundsDone(e)===ROUNDS);
+  w+=`<div class="day"><small>${everyoneDone&&lead?"Day winner":"Leading"}</small><b>${lead?"👑 "+esc(lead.name):"—"}</b></div>`;
+  $("pWinners").innerHTML=w;
+  $("pTabs").innerHTML=[["all","Overall"],...Array.from({length:ROUNDS},(_,i)=>[String(i),"Round "+(i+1)])].map(([t,l])=>`<button type="button" data-t="${t}" class="${lbTab===t?"on":""}">${l}</button>`).join("");
+  const rows=ranked(lbTab), rest=all.filter(e=>val(e,lbTab)==null);
+  $("rank").innerHTML=[...rows,...rest].map((e,i)=>{ const v=val(e,lbTab);
+    const sub=lbTab==="all"?e.r.map((x,j)=>`R${j+1} ${x==null?"—":(x*FT_PER_PT).toLocaleString()}`).join(" · "):(v==null?"Hasn't played this round":`${v} of 700 points`);
+    return `<li class="${e.me?"me":""}"><span class="pos">${v==null?"·":(i===0&&v>0?"👑":i+1)}</span><span class="who"><span class="nm">${esc(e.name)}${e.me?" (you)":""}</span><span class="sub">${sub}</span></span><span class="sc">${v==null?"—":ftText(v)}</span>${e.me?"":`<button type="button" class="rm" data-k="${esc(e.k)}" aria-label="Remove ${esc(e.name)}">×</button>`}</li>`; }).join("");
+  $("rankNote").textContent=all.length<2?"Just you so far. When friends share their results, paste them in below.":"";
+}
+
+/* ---------- EVENTS ---------- */
+$("form").addEventListener("submit",e=>{ e.preventDefault(); submit(false); });
+$("next").addEventListener("click",()=>{ if(S.i<PER-1) SFX.play("click"); next(); });
+$("startDaily").addEventListener("click",()=>{
+  if(DAY.done.length<ROUNDS&&!myName()){ const n=$("nameIn"); n.classList.remove("shake"); void n.offsetWidth; n.classList.add("shake"); n.focus(); $("progressNote").textContent="Add your name first, so friends can find you on the leaderboard."; SFX.play("miss"); return; }
+  if(DAY.done.length<ROUNDS) SFX.play("start"); start(); });
+$("nameIn").value=myName();
+if(LB.on){ $("openBoard").classList.add("hidden"); $("openBoard2").classList.add("hidden"); }
+$("nameIn").addEventListener("input",e=>{ const v=e.target.value.replace(/\s+/g," ").trim().slice(0,14); store.set("tgb-name",v); LB.setName(v); });
+$("nameIn").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); e.target.blur(); } });
+$("openBoard").addEventListener("click",()=>openBoard());
+$("openBoard2").addEventListener("click",()=>openBoard());
+$("boardBack").addEventListener("click",()=>{ SFX.play("click"); if(boardFrom==="summary") show("summary"); else { renderIntro(); show("intro"); } });
+$("addFriend").addEventListener("click",addFriends);
+$("pTabs").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; lbTab=b.dataset.t; SFX.play("click"); renderBoard(); });
+$("rank").addEventListener("click",e=>{ const b=e.target.closest(".rm"); if(!b) return; const f=friends(); delete f[b.dataset.k]; store.set(LBKEY,f); renderBoard(); });
+$("again").addEventListener("click",()=>{ SFX.play("start"); start(); });
+$("skip").addEventListener("click",skip);
+$("tryMsg").addEventListener("click",e=>{ if(e.target&&e.target.id==="honorBtn") honor(); });
+$("copy").addEventListener("click",share);
+$("mute").addEventListener("click",()=>{ $("mute").textContent=SFX.toggle()?"🔇":"🔊"; });
+$("mute").textContent=SFX.isMuted()?"🔇":"🔊";
+const helpOpen=o=>{ $("modal").classList.toggle("hidden",!o); if(o) $("closeHelp").focus(); };
+$("help").addEventListener("click",()=>{ SFX.play("click"); helpOpen(true); });
+$("closeHelp").addEventListener("click",()=>{ SFX.play("click"); helpOpen(false); });
+$("modal").addEventListener("click",e=>{ if(e.target===$("modal")) helpOpen(false); });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape") helpOpen(false);
+  if(e.key==="Enter"&&!$("game").classList.contains("hidden")&&!$("result").classList.contains("hidden")&&document.activeElement!==$("next")){ e.preventDefault(); $("next").click(); }
+});
+
+try{ if(window.visualViewport) visualViewport.addEventListener("resize",()=>{ if(!$("game").classList.contains("hidden")&&!$("play").classList.contains("hidden")&&document.activeElement===$("answer")) keepVisible(); }); }catch(e){}
+
+stars(); renderIntro(); setAltitude(0,true); enter("intro"); LB.visible(true);
+
+</script>
+</body>
+</html>
