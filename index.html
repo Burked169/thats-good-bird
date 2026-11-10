@@ -375,7 +375,7 @@ button.icon.sm{width:38px;height:38px;font-size:16px}
 /* ---------- TIERS ---------- */
 const TIERS = [
   {name:"Strinky Coal", pts:10,  icon:"🪨", color:"var(--t0)"},
-  {name:"Good Scrump", pts:30,  icon:"🦐", color:"var(--t1)"},
+  {name:"Yummy Ccrump", pts:30,  icon:"🦐", color:"var(--t1)"},
   {name:"Mmm That's Good Bird", pts:60,  icon:"🍔", color:"var(--t2)"},
   {name:"¡Crowalé!", pts:85,  icon:"🫃", color:"var(--t3)"},
   {name:"One in a Murder", pts:100, icon:"🐦‍⬛", color:"var(--t4)"}
@@ -383,7 +383,7 @@ const TIERS = [
 const FT_PER_PT = 4;
 
 /* ---------- PROMPTS ----------
-   t = [strinky coal, good scrump, mmm that's good bird, crowalé, one in a murder]
+   t = [strinky coal, yummy ccrump, mmm that's good bird, crowalé, one in a murder]
    "Display|alias|alias" — first item is shown. "~word" = keyword match. people:true allows last-name answers. */
 const P = [
 /* Guillermo del Toro — life & biography */
@@ -827,7 +827,26 @@ const P = [
  ["Leaving the seat up|~seat up|~seat","Peeing on the seat|~pee|~piss|~sprinkle|~dribble","Using up the toilet paper and not replacing it|~toilet paper|~tp|~roll|~replace","Taking forever|~forever|~too long|~hog|~long time","On your phone in there|~phone|~scrolling|~talking"],
  ["Clogging it and walking away|~clog|~plunge","Not spraying after|~spray|~smell|~stink|~febreze|~air freshener|~candle|~match","Leaving the door open|~door|~lock|~knock","Talking to someone in the next stall|~stall|~conversation|~chat|~small talk","Taking the urinal right next to someone|~urinal","Wet floor or counter|~wet|~water everywhere|~splash|~puddle","Leaving hair in the sink or shower|~hair|~shav"],
  ["Courtesy flush fails|~courtesy","Toothpaste left in the sink|~toothpaste|~spit","Leaving towels on the floor|~towel","Peeking through the stall gap|~peek|~gap|~look","Eating in the bathroom|~eat|~food|~snack","Not putting the lid down before flushing|~lid"],
- ["When you leave crumbs behind in the toilo after going poop|~crumb|~toilo|~skid|~streak|~leave behind|~left behind|~residue|~poop stain|~marks in the bowl|~floater"]]}
+ ["When you leave crumbs behind in the toilo after going poop|~crumb|~toilo|~skid|~streak|~leave behind|~left behind|~residue|~poop stain|~marks in the bowl|~floater"]]},
+/* Marshmello */
+{topic:"Marshmello", q:"Name a Marshmello song", t:[
+ ["Happier","Alone"],
+ ["Friends|FRIENDS","Silence","Wolves","Come & Go|Come and Go","Leave Before You Love Me"],
+ ["Here With Me","Be Kind","One Thing Right","Miles on It|Miles On It","Everyday","Spotlight","El Merengue","Keep It Mello","Numb"],
+ ["Project Dreams","Tongue Tied","You & Me|You and Me","Summer","Moving On","Chasing Colors","Ritual","Find Me","Together","Check This Out","Rescue Me","Bye Bye"],
+ ["Blocks","Love U","Stars","Flashbacks","Know Me","Tell Me","Power","Light It Up","Room to Fall","Paralyzed","Rooftops","Biba","Crusade","Shockwave","Hitta","Fly"]]},
+{topic:"Marshmello", q:"Name an artist Marshmello has made a song with", people:true, t:[
+ ["Bastille","Selena Gomez","Khalid"],
+ ["Anne-Marie|Anne Marie","Juice WRLD|Juice World","Jonas Brothers|Jonas","Halsey","Kane Brown"],
+ ["Demi Lovato","Logic","Lil Peep","CHVRCHES|Chvrches|Churches","Roddy Ricch","Manuel Turizo","Migos","Yungblud","blackbear","A Day to Remember|ADTR"],
+ ["Lil Uzi Vert","Chris Brown","Tyga","Young Thug","SOB X RBE","Slushii","Imanbek","Usher","Nitti Gritti","Megan Thee Stallion","Eptic","Carnage","Subtronics","Juicy J","TroyBoi","Ookay","Jauz","Wrabel","Noah Cyrus"],
+ ["Pritam","Shirley Setia","Amr Diab","James Arthur","Trippie Redd","Southside","Giggs","Tynan","Flux Pavilion","Elohim","Omar LinX","Svdden Death|Sudden Death","2 Chainz","Tokischa","Fuerza Regida","Young Miko","Farruko","Polo G","Ellie Goulding"]]},
+{topic:"Marshmello", q:"Name a fact about Marshmello", t:[
+ ["Wears a white marshmallow helmet|~helmet|~mask|~bucket|~head|~marshmallow","He's a DJ and producer|~dj|~producer|~edm|~electronic|~music"],
+ ["His Fortnite concert|~fortnite|~concert","Kept his identity secret|~secret|~anonymous|~identity|~face|~nobody knows","X eyes and a smile on the helmet|~x eyes|~smile|~eyes","'Happier' with Bastille was a huge hit|~happier|~bastille","Dresses in all white|~white"],
+ ["Real name Christopher Comstock|~chris comstock|~christopher|~comstock|~chris","His fans are the Mellogang|~mellogang|~mello gang","'Cooking with Marshmello' on YouTube|~cooking|~youtube","'Joytime' albums|~joytime","He's a Fortnite skin|~skin","From Philadelphia|~philadelphia|~philly|~pennsylvania","Compared to deadmau5 for the helmet|~deadmau5|~deadmaus|~daft punk"],
+ ["Used to go by Dotcom|~dotcom|~dot com","Fortnite concert was at Pleasant Park in 2019|~pleasant park|~2019","Tiësto 'unmasked' as him as a prank at EDC|~tiesto|~edc|~prank|~unmask","Label Joytime Collective|~joytime collective|~label","Manager Moe Shalizi|~moe shalizi|~shalizi|~manager","Album 'Shockwave'|~shockwave","Album 'Sugar Papi'|~sugar papi","Las Vegas residency|~vegas|~residency","Grammy nominated|~grammy"],
+ ["Forbes revealed his identity in 2017|~forbes|~2017","Born in 1992|~1992","Pranked people with Will Ferrell 'unmasking'|~will ferrell|~ferrell","'Alone' video shows him as a bullied student|~alone|~bullied|~school","Skrillex once took a call from 'Chris' in an interview|~skrillex|~phone call"]]}
 ];
 
 
