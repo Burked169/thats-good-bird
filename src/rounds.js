@@ -1,5 +1,6 @@
 /* ---------- DAILY ROUNDS ---------- */
-const ROUNDS=3, PER=7;
+const ROUNDS=1, PER=7;
+const SALT=2; // bump to reshuffle the questions and reset saved scores for everyone
 const LAUNCH = new Date(2026,10,10); // Nov 10, 2026 = #1
 function todayKey(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 function dayNum(){const d=new Date();d.setHours(0,0,0,0);return Math.round((d-LAUNCH)/864e5)+1;}
@@ -14,7 +15,7 @@ const GROUP={"Video Games":"games","Fortnite":"games","Red Dead Redemption 2":"g
 const MAX_PER_DAY=2; // no subject shows up more than twice in a day
 const groupOf=t=>GROUP[t]||t;
 function buildRounds(day){
-  const rand=rng(day*7919+13);
+  const rand=rng(day*7919+13+SALT*104729);
   let left=shuffle(P.map((_,i)=>i),rand);
   const rounds=[], usedToday={};
   for(let r=0;r<ROUNDS;r++){

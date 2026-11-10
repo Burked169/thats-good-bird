@@ -75,7 +75,7 @@ const SFX=(()=>{
 })();
 
 /* ---------- SAVED STATE ---------- */
-const DAYKEY="tgb-"+todayKey();
+const DAYKEY="tgb"+SALT+"-"+todayKey();
 let DAY = store.get(DAYKEY) || {day:dayNum(), done:[], cur:null};   // done=[{score,results}], cur = round in progress
 if(!Array.isArray(DAY.done)) DAY={day:dayNum(),done:[],cur:null};
 const PLAN = buildRounds(dayNum());
@@ -90,7 +90,7 @@ const LB=(()=>{
   const URL=(WRAP.dataset.lb||"").trim().replace(/\/+$/,""), on=/^https:\/\//.test(URL);
   let pid=store.get("tgb-pid"); if(!pid){ pid=Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); store.set("tgb-pid",pid); }
   let name=store.get("tgb-name")||"", rows=null, err=false, tab="all", editing=false, lastLoad=0, busy=false, again=false;
-  const path=()=>`${URL}/tgb/${todayKey()}`;
+  const path=()=>`${URL}/tgb${SALT}/${todayKey()}`;
   const clamp=(v,max)=>{ v=Math.round(+v); return v>=0&&v<=max?v:-1; };
   async function post(){
     if(!on||!name||!DAY.done.length) return;
@@ -124,7 +124,8 @@ const LB=(()=>{
     $("lbTabs").innerHTML=tabs.map(([k,l])=>`<button type="button" data-k="${k}" class="${String(tab)===String(k)?"on":""}">${l}</button>`).join("");
     if(err&&!rows){ $("lbWinners").textContent=""; $("lbRows").innerHTML=""; $("lbNote").textContent="Couldn't reach the leaderboard. Tap ↻ to try again."; return; }
     if(!rows){ $("lbNote").textContent="Loading…"; return; }
-    const w=[]; for(let i=0;i<ROUNDS;i++){ const n=leader(i); if(n) w.push(`R${i+1} 👑 <b>${n==="tie"?"Tied":esc(n)}</b>`); }
+    $("lbTabs").classList.toggle("hidden",ROUNDS===1); if(ROUNDS===1) tab="all";
+    const w=[]; for(let i=0;ROUNDS>1&&i<ROUNDS;i++){ const n=leader(i); if(n) w.push(`R${i+1} 👑 <b>${n==="tie"?"Tied":esc(n)}</b>`); }
     const o=leader("all"); if(o&&rows.some(x=>x.played>=ROUNDS)) w.push(`Day 👑 <b>${o==="tie"?"Tied":esc(o)}</b>`);
     $("lbWinners").innerHTML=w.join(" &nbsp;·&nbsp; ");
     const list=ranked(tab); let rank=0, prev=null;
@@ -204,13 +205,13 @@ function keepVisible(){ try{ const vh=window.visualViewport?visualViewport.heigh
 function renderStreak(){ const n=streakNow(), el=$("streak"); el.classList.toggle("hidden",n<1); el.textContent="🔥 "+n; el.title=n+"-day streak"; }
 function renderIntro(){
   $("dayLabel").textContent="Today's Flight #"+dayNum();
-  $("howRounds").textContent=ROUNDS+" rounds";
+  $("howRounds").textContent=ROUNDS===1?"1 round":ROUNDS+" rounds";
   $("legend").innerHTML=TIERS.map(t=>`<div><span>${t.icon}</span><b style="color:${t.color}">${t.pts}</b><small>${t.name}</small></div>`).join("");
   $("legendFull").innerHTML=TIERS.map(t=>`<span>${t.icon}</span><span style="color:${t.color};font-weight:600">${t.name}</span><span class="p">${t.pts} pts</span>`).join("")
     +`<span>🌾</span><span style="color:var(--bad);font-weight:600">Scarecrowed (no answer)</span><span class="p">0 pts</span>`;
   const n=DAY.done.length, mid=DAY.cur&&DAY.cur.round===n+1&&DAY.cur.results.length>0&&DAY.cur.results.length<PER;
   $("startDaily").textContent=n>=ROUNDS?"See today's results":mid?`Continue Round ${n+1}`:n>0?`Play Round ${n+1}`:"Play";
-  $("progressNote").textContent=n>=ROUNDS?`All ${ROUNDS} rounds done. New flight tomorrow.`:n>0?`${n} of ${ROUNDS} rounds done · ${ftText(totalScore())} so far`:"";
+  $("progressNote").textContent=n>=ROUNDS?(ROUNDS===1?"Today's flight is done. New flight tomorrow.":`All ${ROUNDS} rounds done. New flight tomorrow.`):n>0?`${n} of ${ROUNDS} rounds done · ${ftText(totalScore())} so far`:"";
   renderStreak();
 }
 
@@ -230,7 +231,7 @@ function startFun(){
   S={fun:true,round:0,qs:qs.sort(()=>Math.random()-0.5),i:0,results:[],score:0};
   launch();
 }
-const roundName=()=>S.fun?"Fun round":"Round "+S.round;
+const roundName=()=>S.fun?"Fun round":ROUNDS===1?"Today's flight":"Round "+S.round;
 function launch(){
   show("game"); setAltitude(S.score,true); renderHoard(false);
   prep(); S.locked=true;
@@ -300,7 +301,7 @@ function finish(p,raw,hit){
   const filled=[4,3,2,1,0].filter(k=>p.t[k]&&p.t[k].length), nm=k=>p.t[k].map(a=>a.split("|")[0]);
   const top=nm(filled[0]).slice(0,3), nxt=filled[1]!==undefined?nm(filled[1]).slice(0,2):[];
   $("rareList").innerHTML=`Shiniest answers: <b>${top.map(esc).join("</b>, <b>")}</b>`+(nxt.length?` · Also: ${nxt.map(esc).join(", ")}`:"");
-  $("next").textContent=S.i===PER-1?(S.fun?"Finish":`Finish Round ${S.round}`):"Next question";
+  $("next").textContent=S.i===PER-1?(S.fun||ROUNDS===1?"Finish":`Finish Round ${S.round}`):"Next question";
   $("play").classList.add("hidden"); $("result").classList.remove("hidden");
   try{ $("answer").blur(); }catch(e){}
 }
@@ -310,7 +311,7 @@ function next(){
   if(S.i>=PER){
     DAY.done.push({score:S.score,results:S.results}); DAY.cur=null; store.set(DAYKEY,DAY);
     bumpStreak();
-    if(DAY.done.length>=ROUNDS){ const b=store.get("tgb-best")||0; if(totalScore()>b) store.set("tgb-best",totalScore()); }
+    if(DAY.done.length>=ROUNDS){ const b=store.get("tgb-best"+SALT)||0; if(totalScore()>b) store.set("tgb-best"+SALT,totalScore()); }
     LB.setTab(DAY.done.length>=ROUNDS?"all":S.round-1);
     showSummary(true); LB.sync();
   } else ask();
@@ -322,7 +323,7 @@ function showSummary(fresh){
   show("summary"); clearInterval(timerId);
   setAltitude(S.score,!fresh); renderHoard(false); renderStreak();
   const n=DAY.done.length, fun=!!S.fun, allDone=n>=ROUNDS&&!fun;
-  $("sumLabel").textContent=fun?"Fun round · doesn't count":`Round ${S.round} of ${ROUNDS} complete`;
+  $("sumLabel").textContent=fun?"Fun round · doesn't count":ROUNDS===1?"Today's flight complete":`Round ${S.round} of ${ROUNDS} complete`;
   const st=starsFor(S.score), spans=$("sumStars").children;
   for(let k=0;k<3;k++){ spans[k].className=""; spans[k].style.animationDelay=""; }
   void $("sumStars").offsetWidth;
@@ -342,9 +343,9 @@ function showSummary(fresh){
   $("dayBox").classList.toggle("hidden",!allDone);
   clearInterval(cdTimer);
   if(allDone){
-    $("dayRows").innerHTML=DAY.done.map((r,i)=>`<div class="dayrow"><span>Round ${i+1} <span class="st">${"★".repeat(starsFor(r.score))}${"☆".repeat(3-starsFor(r.score))}</span></span><span>${ftText(r.score)}</span></div>`).join("");
+    $("dayRows").classList.toggle("hidden",ROUNDS===1); if(ROUNDS===1){ const dt=$("dayTotal").parentElement; dt.style.borderTop="0"; dt.style.marginTop="0"; dt.style.paddingTop="0"; } $("dayRows").innerHTML=DAY.done.map((r,i)=>`<div class="dayrow"><span>Round ${i+1} <span class="st">${"★".repeat(starsFor(r.score))}${"☆".repeat(3-starsFor(r.score))}</span></span><span>${ftText(r.score)}</span></div>`).join("");
     $("dayTotal").textContent=ftText(totalScore());
-    const best=store.get("tgb-best")||0, sn=streakNow();
+    const best=store.get("tgb-best"+SALT)||0, sn=streakNow();
     $("dayMeta").textContent=[best>totalScore()?`Your best day: ${ftText(best)}`:(best?"That's your best day yet!":""), sn>1?`🔥 ${sn}-day streak`:""].filter(Boolean).join(" · ");
     const cd=()=>{ const now=new Date(), mid=new Date(now); mid.setHours(24,0,0,0); const s=Math.max(0,Math.floor((mid-now)/1000)); $("nextIn").textContent=`Next flight in ${Math.floor(s/3600)}h ${String(Math.floor(s%3600/60)).padStart(2,"0")}m ${String(s%60).padStart(2,"0")}s`; };
     cd(); cdTimer=setInterval(cd,1000);
@@ -364,7 +365,7 @@ async function share(){
 }
 
 /* ---------- LEADERBOARD (scores travel as a short code inside shared results) ---------- */
-const LBKEY="tgb-lb-"+todayKey();
+const LBKEY="tgb"+SALT+"-lb-"+todayKey();
 const myName=()=>String(store.get("tgb-name")||"").trim();
 const b64e=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const b64d=s=>{ try{ return decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/")))); }catch(e){ return null; } };
@@ -405,14 +406,15 @@ function renderBoard(){
   const all=[myEntry(),...Object.entries(friends()).map(([k,e])=>({...e,k}))];
   const val=(e,t)=>t==="all"?(roundsDone(e)?totalOf(e):null):e.r[+t];
   const ranked=t=>all.filter(e=>val(e,t)!=null).sort((a,b)=>val(b,t)-val(a,t));
-  let w=""; for(let i=0;i<ROUNDS;i++){ const top=ranked(String(i))[0]; w+=`<div><small>Round ${i+1}</small><b>${top?"👑 "+esc(top.name):"—"}</b></div>`; }
+  $("pTabs").classList.toggle("hidden",ROUNDS===1); if(ROUNDS===1) lbTab="all";
+  let w=""; for(let i=0;ROUNDS>1&&i<ROUNDS;i++){ const top=ranked(String(i))[0]; w+=`<div><small>Round ${i+1}</small><b>${top?"👑 "+esc(top.name):"—"}</b></div>`; }
   const lead=ranked("all")[0], everyoneDone=all.every(e=>roundsDone(e)===ROUNDS);
   w+=`<div class="day"><small>${everyoneDone&&lead?"Day winner":"Leading"}</small><b>${lead?"👑 "+esc(lead.name):"—"}</b></div>`;
-  $("pWinners").innerHTML=w;
+  $("pWinners").innerHTML=w; $("pWinners").style.gridTemplateColumns=ROUNDS===1?"1fr":"";
   $("pTabs").innerHTML=[["all","Overall"],...Array.from({length:ROUNDS},(_,i)=>[String(i),"Round "+(i+1)])].map(([t,l])=>`<button type="button" data-t="${t}" class="${lbTab===t?"on":""}">${l}</button>`).join("");
   const rows=ranked(lbTab), rest=all.filter(e=>val(e,lbTab)==null);
   $("rank").innerHTML=[...rows,...rest].map((e,i)=>{ const v=val(e,lbTab);
-    const sub=lbTab==="all"?e.r.map((x,j)=>`R${j+1} ${x==null?"—":(x*FT_PER_PT).toLocaleString()}`).join(" · "):(v==null?"Hasn't played this round":`${v} of 700 points`);
+    const sub=ROUNDS===1?(v==null?"Hasn't played yet":`${v} of 700 points`):lbTab==="all"?e.r.map((x,j)=>`R${j+1} ${x==null?"—":(x*FT_PER_PT).toLocaleString()}`).join(" · "):(v==null?"Hasn't played this round":`${v} of 700 points`);
     return `<li class="${e.me?"me":""}"><span class="pos">${v==null?"·":(i===0&&v>0?"👑":i+1)}</span><span class="who"><span class="nm">${esc(e.name)}${e.me?" (you)":""}</span><span class="sub">${sub}</span></span><span class="sc">${v==null?"—":ftText(v)}</span>${e.me?"":`<button type="button" class="rm" data-k="${esc(e.k)}" aria-label="Remove ${esc(e.name)}">×</button>`}</li>`; }).join("");
   $("rankNote").textContent=all.length<2?"Just you so far. When friends share their results, paste them in below.":"";
 }
